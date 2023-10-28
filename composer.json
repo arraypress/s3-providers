@@ -1,0 +1,13 @@
+{
+  "name": "arraypress/s3-providers",
+  "description": "A comprehensive library facilitating interactions with various S3-compatible storage providers. Supports popular providers like Cloudflare R2, Linode, Amazon, and others.",
+  "type": "library",
+  "license": "GPL-2.0-or-later",
+  "minimum-stability": "stable",
+  "require": {},
+  "autoload": {
+    "psr-4": {
+      "ArrayPress\\Utils\\": "src/"
+    }
+  }
+}

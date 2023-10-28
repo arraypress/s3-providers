@@ -1,0 +1,450 @@
+{
+  "providers": {
+    "linode": {
+      "label": "Linode Object Storage",
+      "supplier": "Linode",
+      "regions": {
+        "NA": [
+          {
+            "label": "Atlanta, GA, USA",
+            "region": "us-southeast-1"
+          },
+          {
+            "label": "Chicago, IL, USA",
+            "region": "us-ord-1"
+          },
+          {
+            "label": "Los Angeles, CA, USA",
+            "region": "us-lax-1"
+          },
+          {
+            "label": "Miami, FL, USA",
+            "region": "us-mia-1"
+          },
+          {
+            "label": "Newark, NJ, USA",
+            "region": "us-east-1"
+          },
+          {
+            "label": "Seattle, WA, USA",
+            "region": "us-sea-1"
+          },
+          {
+            "label": "Washington, DC, USA",
+            "region": "us-iad-1"
+          }
+        ],
+        "EU": [
+          {
+            "label": "Stockholm, Sweden",
+            "region": "se-sto-1"
+          },
+          {
+            "label": "Amsterdam, Netherlands",
+            "region": "nl-ams-1"
+          },
+          {
+            "label": "Milan, Italy",
+            "region": "it-mil-1"
+          },
+          {
+            "label": "Paris, France",
+            "region": "fr-par-1"
+          },
+          {
+            "label": "Frankfurt, Germany",
+            "region": "eu-central-1"
+          }
+        ],
+        "SA": [
+          {
+            "label": "Sao Paulo, Brazil",
+            "region": "br-gru-1"
+          }
+        ],
+        "AS": [
+          {
+            "label": "Singapore",
+            "region": "ap-south-1"
+          },
+          {
+            "label": "Osaka, Japan",
+            "region": "ip-osa-1"
+          },
+          {
+            "label": "Chennai, India",
+            "region": "in-maa-1"
+          },
+          {
+            "label": "Jakarta, Indonesia",
+            "region": "id-cgk-1"
+          }
+        ]
+      },
+      "homepage": "https://www.linode.com/products/object-storage/",
+      "defaultRegion": "us-east-1",
+      "pathStyle": true,
+      "endpoint": "{region}.linodeobjects.com"
+    },
+    "digitalocean": {
+      "label": "DigitalOcean Spaces",
+      "supplier": "DigitalOcean",
+      "regions": {
+        "NA": [
+          {
+            "label": "New York City, United States",
+            "region": "nyc3"
+          },
+          {
+            "label": "San Francisco, United States",
+            "region": "sfo3"
+          },
+          {
+            "label": "San Francisco, United States",
+            "region": "sfo2"
+          }
+        ],
+        "EU": [
+          {
+            "label": "Amsterdam, Netherlands",
+            "region": "ams3"
+          },
+          {
+            "label": "Frankfurt, Germany",
+            "region": "fra1"
+          }
+        ],
+        "AS": [
+          {
+            "label": "Singapore",
+            "region": "sgp1"
+          },
+          {
+            "label": "Bangalore, India",
+            "region": "blr1"
+          }
+        ],
+        "OC": [
+          {
+            "label": "Sydney, Australia",
+            "region": "syd1"
+          }
+        ]
+      },
+      "homepage": "https://www.digitalocean.com/products/spaces/",
+      "defaultRegion": "sfo3",
+      "pathStyle": false,
+      "endpoint": "{region}.digitaloceanspaces.com"
+    },
+    "aws": {
+      "label": "Amazon S3",
+      "supplier": "Amazon",
+      "regions": {
+        "NA": [
+          {
+            "label": "US East (Ohio)",
+            "region": "us-east-2"
+          },
+          {
+            "label": "US East (N. Virginia)",
+            "region": "us-east-1"
+          },
+          {
+            "label": "US West (N. California)",
+            "region": "us-west-1"
+          },
+          {
+            "label": "US West (Oregon)",
+            "region": "us-west-2"
+          },
+          {
+            "label": "Canada (Central)",
+            "region": "ca-central-1"
+          },
+          {
+            "label": "AWS GovCloud (US-East)",
+            "region": "us-gov-east-1"
+          },
+          {
+            "label": "AWS GovCloud (US-West)",
+            "region": "us-gov-west-1"
+          }
+        ],
+        "AF": [
+          {
+            "label": "Africa (Cape Town)",
+            "region": "af-south-1"
+          }
+        ],
+        "AS": [
+          {
+            "label": "Asia Pacific (Hong Kong)",
+            "region": "ap-east-1"
+          },
+          {
+            "label": "Asia Pacific (Hyderabad)",
+            "region": "ap-south-2"
+          },
+          {
+            "label": "Asia Pacific (Jakarta)",
+            "region": "ap-southeast-3"
+          },
+          {
+            "label": "Asia Pacific (Melbourne)",
+            "region": "ap-southeast-4"
+          },
+          {
+            "label": "Asia Pacific (Mumbai)",
+            "region": "ap-south-1"
+          },
+          {
+            "label": "Asia Pacific (Osaka)",
+            "region": "ap-northeast-3"
+          },
+          {
+            "label": "Asia Pacific (Seoul)",
+            "region": "ap-northeast-2"
+          },
+          {
+            "label": "Asia Pacific (Singapore)",
+            "region": "ap-southeast-1"
+          },
+          {
+            "label": "Asia Pacific (Sydney)",
+            "region": "ap-southeast-2"
+          },
+          {
+            "label": "Asia Pacific (Tokyo)",
+            "region": "ap-northeast-1"
+          },
+          {
+            "label": "China (Beijing)",
+            "region": "cn-north-1"
+          },
+          {
+            "label": "China (Ningxia)",
+            "region": "cn-northwest-1"
+          },
+          {
+            "label": "Middle East (Bahrain)",
+            "region": "me-south-1"
+          },
+          {
+            "label": "Middle East (UAE)",
+            "region": "me-central-1"
+          },
+          {
+            "label": "Israel (Tel Aviv)",
+            "region": "il-central-1"
+          }
+        ],
+        "EU": [
+          {
+            "label": "Europe (Frankfurt)",
+            "region": "eu-central-1"
+          },
+          {
+            "label": "Europe (Ireland)",
+            "region": "eu-west-1"
+          },
+          {
+            "label": "Europe (London)",
+            "region": "eu-west-2"
+          },
+          {
+            "label": "Europe (Milan)",
+            "region": "eu-south-1"
+          },
+          {
+            "label": "Europe (Paris)",
+            "region": "eu-west-3"
+          },
+          {
+            "label": "Europe (Stockholm)",
+            "region": "eu-north-1"
+          },
+          {
+            "label": "Europe (Spain)",
+            "region": "eu-south-2"
+          },
+          {
+            "label": "Europe (Zurich)",
+            "region": "eu-central-2"
+          }
+        ],
+        "SA": [
+          {
+            "label": "South America (São Paulo)",
+            "region": "sa-east-1"
+          }
+        ]
+      },
+      "homepage": "https://aws.amazon.com/s3/",
+      "defaultRegion": "us-east-1",
+      "pathStyle": true,
+      "endpoint": "s3.{region}.amazonaws.com"
+    },
+    "backblaze": {
+      "label": "Backblaze B2",
+      "supplier": "Backblaze",
+      "regions": {
+        "NA": [
+          {
+            "label": "US West (000)",
+            "region": "us-west-000"
+          },
+          {
+            "label": "US West (001)",
+            "region": "us-west-001"
+          },
+          {
+            "label": "US West (002)",
+            "region": "us-west-002"
+          },
+          {
+            "label": "US West (003)",
+            "region": "us-west-003"
+          },
+          {
+            "label": "US West (004)",
+            "region": "us-west-004"
+          }
+        ],
+        "EU": [
+          {
+            "label": "EU Central (003)",
+            "region": "eu-central-003"
+          }
+        ]
+      },
+      "homepage": "https://www.backblaze.com/b2/",
+      "defaultRegion": "us-west-004",
+      "pathStyle": false,
+      "endpoint": "s3.{region}.backblazeb2.com"
+    },
+    "wasabi": {
+      "label": "Wasabi",
+      "supplier": "Wasabi",
+      "regions": {
+        "NA": [
+          {
+            "label": "Virginia 1",
+            "region": "us-east-1"
+          },
+          {
+            "label": "Virginia 2",
+            "region": "us-east-2"
+          },
+          {
+            "label": "Plano, TX",
+            "region": "us-central-1"
+          },
+          {
+            "label": "Toronto, Canada",
+            "region": "ca-central-1"
+          },
+          {
+            "label": "Oregon",
+            "region": "us-west-1"
+          }
+        ],
+        "EU": [
+          {
+            "label": "London, England",
+            "region": "eu-west-1"
+          },
+          {
+            "label": "Paris, France",
+            "region": "eu-west-2"
+          },
+          {
+            "label": "Amsterdam, Netherlands",
+            "region": "eu-central-1"
+          },
+          {
+            "label": "Frankfurt, Germany",
+            "region": "eu-central-2"
+          }
+        ],
+        "AS": [
+          {
+            "label": "Tokyo, Japan",
+            "region": "ap-northeast-1"
+          },
+          {
+            "label": "Osaka, Japan",
+            "region": "ap-northeast-2"
+          },
+          {
+            "label": "Sydney, Australia",
+            "region": "ap-southeast-2"
+          },
+          {
+            "label": "Singapore",
+            "region": "ap-southeast-1"
+          }
+        ]
+      },
+      "homepage": "https://wasabi.com/",
+      "defaultRegion": "us-east-1",
+      "pathStyle": false,
+      "endpoint": "s3.{region}.wasabisys.com"
+    },
+    "vultr": {
+      "label": "Vultr Object Storage",
+      "supplier": "Vultr",
+      "regions": {
+        "EU": [
+          {
+            "label": "Amsterdam",
+            "region": "ams1"
+          }
+        ],
+        "AS": [
+          {
+            "label": "Bangalore",
+            "region": "blr1"
+          },
+          {
+            "label": "Singapore",
+            "region": "sgp1"
+          },
+          {
+            "label": "New Delhi",
+            "region": "del1"
+          }
+        ],
+        "NA": [
+          {
+            "label": "New Jersey",
+            "region": "ewr1"
+          },
+          {
+            "label": "Silicon Valley",
+            "region": "sjc1"
+          }
+        ]
+      },
+      "homepage": "https://www.vultr.com/products/object-storage/",
+      "defaultRegion": "ewr1",
+      "pathStyle": true,
+      "endpoint": "{region}.vultrobjects.com"
+    },
+    "cloudflare": {
+      "label": "CloudFlare R2",
+      "supplier": "CloudFlare",
+      "regions": {
+        "Global": [
+          {
+            "label": "Automatic",
+            "region": "auto"
+          }
+        ]
+      },
+      "homepage": "https://www.cloudflare.com/products/r2/",
+      "defaultRegion": "auto",
+      "pathStyle": true,
+      "endpoint": "{account_id}.r2.cloudflarestorage.com"
+    }
+  }
+}
