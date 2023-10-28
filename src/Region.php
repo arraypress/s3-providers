@@ -90,6 +90,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\Region' ) ) :
 		public function is_auto(): string {
 			return 'auto' === strtolower( $this->region );
 		}
+
 	}
 
 endif;

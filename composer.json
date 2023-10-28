@@ -7,7 +7,7 @@
   "require": {},
   "autoload": {
     "psr-4": {
-      "ArrayPress\\Utils\\": "src/"
+      "ArrayPress\\Utils\\S3\\": "src/"
     }
   }
 }
