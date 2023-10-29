@@ -1,13 +1,16 @@
-#  S3 Storage Provider Library
+# Object Storage Providers & Regions Library
 
-The `S3_Signer` class is designed to streamline the process of generating pre-signed S3 URLs. These URLs grant temporary access to S3 objects without the need for AWS credentials or permissions. This is especially useful for applications that require short-term access or sharing links to resources stored in an S3 bucket.
+The `Providers` class offers a seamless integration experience with a range of popular object storage providers. Designed to work hand-in-hand with the s3-signing library, this class provides an effortless mechanism to fetch correct endpoints based on the provider and region, enhancing the power and flexibility of your applications.
 
 **Key Features:**
 
-* **Path-Style and Virtual-Hosted Style URLs:** The library supports both URL formats, accommodating different requirements and bucket naming conventions.
-* **Configurable URL Validity:** You can set the duration for which the generated URL remains valid.
-* **Extra Query Parameters:** Enhance the generated S3 URL by appending extra query string parameters.
-* **Expansive S3 Compatibility:** Not just limited to Cloudflare R2, the class is meticulously engineered to synchronize with a plethora of S3-Compatible storage solutions like Linode, DigitalOcean Spaces, BackBlaze, and more.
+* **Extensive Provider Support:** This library encompasses a broad array of object storage providers, including AWS, Linode, CloudFlare R2, Wasabi, Backblaze, and DigitalOcean.
+* **Dynamic Endpoint Fetching:** Automatically retrieve the appropriate endpoints for a chosen provider and region, eliminating manual lookup.
+* **Endpoint Verification:** Ensure that your endpoints are accurate and up-to-date with the built-in verification system.
+* **Flexible Configuration Options:** Beyond just regions, the class supports inputs like account IDs, making it adaptable to various use-cases.
+* **Retrieve Providers & Regions:** Conveniently obtain a list of supported providers and regions, making plugin updates or app extensions a breeze.
+* **Region Existence Check:** Validate if a specific region exists within a provider, preventing potential errors in applications.
+* **Up-to-Date JSON Support:** The library sources providers and regions from an up-to-date JSON file. However, for customized needs, users have the flexibility to pass in their own JSON file or a structured PHP array to override default details.
 
 ## Installation and set up
 
@@ -30,40 +33,52 @@ The extension in question needs to have a `composer.json` file, specifically wit
 Once set up, run `composer install --no-dev`. This should create a new `vendors/` folder
 with `arraypress/s3-providers/` inside.
 
-## Utilizing the S3 URL Presigning Tool
+## Leveraging the Object Storage Provider Library
 
-The `S3_Signer` class empowers you to generate secure, pre-signed URLs for objects stored on any S3-compatible storage provider, including CloudFlare R2 and others. This tool makes it seamless to share private content for a temporary duration. Here's a step-by-step guide to harness its capabilities:
+The `Providers` class streamlines the integration with a range of popular object storage providers, including CloudFlare R2 and more. With this tool, you can effortlessly fetch correct endpoints based on provider and region, ensuring accurate and secure connections to your storage solutions. Below is a step-by-step guide to unlock its potential:
 
 ### Including the Vendor Library
 
-Before using the `S3_Signer` class, you need to include the Composer-generated autoload file. This file ensures that the required dependencies and classes are loaded into your PHP script. You can include it using the following code:
+Before using the `Providers` class, you need to include the Composer-generated autoload file. This file ensures that the required dependencies and classes are loaded into your PHP script. You can include it using the following code:
 
 ```php 
 // Include the Composer-generated autoload file.
 require_once dirname(__FILE__) . '/vendor/autoload.php';
 ```
 
-### Generating Pre-signed URLs for CloudFlare R2
+### Initialization
+
+Loading providers from a default JSON file:
 
 ```php
-$access_key = 'YOUR_R2_ACCESS_KEY';   // Update with your actual CloudFlare R2 access key
-$secret_key = 'YOUR_R2_SECRET_KEY';   // Update with your actual CloudFlare R2 secret key
-$endpoint   = '{account_id}.r2.cloudflarestorage.com'; // Use your specific R2 account ID here
-$region     = 'auto'; // For CloudFlare, set region as 'auto' when creating pre-signed URLs
-
-$signer = new ArrayPress\Utils\Endpoints( $access_key, $secret_key, $endpoint, $region );
-
-$bucket_name = 'my-bucket';          // Input your desired bucket name here
-$object_path = 'sample-file.zip';    // Specify the object's path you want to share
-
-// Creating a pre-signed URL with a standard 5-minute expiration
-$signed_url = $signer->get_object_url( $bucket_name, $object_path );
-echo "Your Pre-Signed URL is: " . $signed_url . "\n";
-
-// Creating a pre-signed URL with a 2-hour expiration
-$signed_url = $signer->get_object_url( $bucket_name, $object_path, 120 );
-echo "Generated Pre-Signed URL with 2 hours validity: " . $signed_url . "\n";
+$providers = new ArrayPress\Utils\S3\Providers();
 ```
+
+Loading providers from a specific JSON file:
+
+```php
+$providers = new ArrayPress\Utils\S3\Providers( '/path/to/providers.json' );
+```
+
+Initializing with a predefined array of provider data:
+
+```php
+$provider_data = [
+    "gcp" => [
+        "label" => "Google Cloud Platform",
+        //... other provider data, check providers.json for required format
+    ]
+];
+$providers = new ArrayPress\Utils\S3\Providers( $provider_data );
+```
+
+### Fetching All Providers
+
+```php
+$all_providers = $providers->get_providers();
+```
+
+Note: More examples will be added soon.
 
 ## Contributions
 
