@@ -12,6 +12,15 @@ The `Providers` class offers a seamless integration experience with a range of p
 * **Region Existence Check:** Validate if a specific region exists within a provider, preventing potential errors in applications.
 * **Up-to-Date JSON Support:** The library sources providers and regions from an up-to-date JSON file. However, for customized needs, users have the flexibility to pass in their own JSON file or a structured PHP array to override default details.
 
+## Supported Providers
+
+* **Amazon S3 (AWS)**
+* **CloudFlare R2**
+* **DigitalOcean Spaces**
+* **Linode Object Storage**
+* **Wasabi Cloud Storage**
+* **Backblaze B2 Cloud Storage**
+
 ## Installation and set up
 
 The extension in question needs to have a `composer.json` file, specifically with the following:
