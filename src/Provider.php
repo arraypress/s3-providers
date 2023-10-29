@@ -18,6 +18,11 @@ namespace ArrayPress\Utils\S3;
 
 use Exception;
 
+/**
+ * Represents an S3 provider and provides related utilities.
+ *
+ * If the class already exists in the namespace, it won't be redefined.
+ */
 if ( ! class_exists( __NAMESPACE__ . '\\Provider' ) ) :
 
 	class Provider {
@@ -215,6 +220,42 @@ if ( ! class_exists( __NAMESPACE__ . '\\Provider' ) ) :
 			}
 
 			return $endpoint;
+		}
+
+		/**
+		 * Verifies if the endpoint for the given region and account ID is accessible.
+		 *
+		 * This method checks the accessibility of the domain derived from the endpoint
+		 * URL of the provider for a given region and account ID. If the endpoint domain
+		 * is accessible and returns a 200 OK response, the method will return true.
+		 * If there is an exception, or if the domain is not accessible, it will return false.
+		 *
+		 * @param string $region_key The key representing the region.
+		 * @param string $account_id (Optional) The account ID to replace in the endpoint URL.
+		 *
+		 * @return bool  True if the endpoint is valid and accessible, otherwise false.
+		 */
+		public function verify_endpoint( string $region_key, string $account_id = '' ): bool {
+			try {
+				// Get the full endpoint URL
+				$endpoint = $this->get_endpoint( $region_key, $account_id );
+
+				// Extract domain from the endpoint
+				$domain = parse_url( $endpoint, PHP_URL_HOST );
+
+				// Check if the domain is accessible
+				$headers = @get_headers( "https://" . $domain );
+
+				if ( $headers && strpos( $headers[0], '200 OK' ) !== false ) {
+					return true; // Endpoint is valid
+				}
+
+			} catch ( Exception $e ) {
+				// Log the exception if necessary or perform other actions
+				// For now, we'll just silently catch it and return false below
+			}
+
+			return false; // Endpoint is not valid or not accessible
 		}
 
 		/**

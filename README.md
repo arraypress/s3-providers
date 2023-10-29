@@ -1,4 +1,4 @@
-#  S3 URL Signing Library
+#  S3 Storage Provider Library
 
 The `S3_Signer` class is designed to streamline the process of generating pre-signed S3 URLs. These URLs grant temporary access to S3 objects without the need for AWS credentials or permissions. This is especially useful for applications that require short-term access or sharing links to resources stored in an S3 bucket.
 
@@ -16,19 +16,19 @@ The extension in question needs to have a `composer.json` file, specifically wit
 ```json 
 {
   "require": {
-    "arraypress/s3-signer": "*"
+    "arraypress/s3-providers": "*"
   },
   "repositories": [
     {
       "type": "vcs",
-      "url": "https://github.com/arraypress/s3-signer"
+      "url": "https://github.com/arraypress/s3-providers"
     }
   ]
 }
 ```
 
 Once set up, run `composer install --no-dev`. This should create a new `vendors/` folder
-with `arraypress/s3-signer/` inside.
+with `arraypress/s3-providers/` inside.
 
 ## Utilizing the S3 URL Presigning Tool
 
