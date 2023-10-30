@@ -44,11 +44,14 @@ if ( ! class_exists( __NAMESPACE__ . '\\Providers' ) ) :
 		/**
 		 * Constructs the Providers class.
 		 *
-		 * @param string|array|null $input Either a path to the JSON file containing providers or an array of providers data. If null, it will be loaded from the default JSON file.
+		 * Initializes the providers either from a given JSON file path, an array of provider data, or the default JSON file.
+		 *
+		 * @param string|array|null $input   Either a path to the JSON file containing providers or an array of providers data. If null, it will be loaded from the default JSON file.
+		 * @param string            $context Describes how the providers are being called, useful for filtering by specific plugins that use the library.
 		 *
 		 * @throws Exception If the provider data is invalid.
 		 */
-		public function __construct( $input = null ) {
+		public function __construct( $input = null, string $context = '' ) {
 			// Check if input is empty or not
 			if ( empty( $input ) && ! is_null( $input ) ) {
 				throw new Exception( 'Input is empty. It should either be a valid path to the JSON file, an array of provider data, or null to load from the default JSON file.' );
@@ -64,6 +67,19 @@ if ( ! class_exists( __NAMESPACE__ . '\\Providers' ) ) :
 				$providers_data = $input;
 			} else {
 				$providers_data = Loader::load();
+			}
+
+			/**
+			 * Filters the providers' data.
+			 *
+			 * Allows developers to modify the providers' data based on the context or other criteria.
+			 *
+			 * @param array     $providers_data The original providers' data.
+			 * @param string    $context        Describes how the providers are being called.
+			 * @param Providers $this           The instance of the Providers class.
+			 */
+			if ( function_exists( 'apply_filters' ) ) {
+				$providers_data = apply_filters( 'arraypress\utils\s3\filter_providers_data', $providers_data, $context, $this );
 			}
 
 			foreach ( $providers_data as $key => $provider_data ) {
