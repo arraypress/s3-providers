@@ -85,6 +85,9 @@ if ( ! class_exists( __NAMESPACE__ . '\\Providers' ) ) :
 			foreach ( $providers_data as $key => $provider_data ) {
 				$this->providers[ $key ] = new Provider( $key, $provider_data );
 			}
+
+			// Sort providers by key
+			ksort( $this->providers );
 		}
 
 		/** Providers *************************************************************/
