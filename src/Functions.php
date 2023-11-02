@@ -270,7 +270,7 @@ if ( ! function_exists( 'get_endpoint' ) ) {
 	 */
 	function get_endpoint(
 		string $provider_key,
-		string $region_key = null,
+		string $region_key = '',
 		string $account_id = '',
 		?string $custom_endpoint = null,
 		$input = null,
@@ -297,7 +297,7 @@ if ( ! function_exists( 'verify_endpoint' ) ) {
 	 * Retrieves the endpoint URL for a given provider and optional region.
 	 *
 	 * @param string            $provider_key    The unique key identifying the provider.
-	 * @param string|null       $region_key      The key of the desired region. If null, the provider's default region is used.
+	 * @param string            $region_key      The key of the desired region. If null, the provider's default region is used.
 	 * @param string            $account_id      The account ID which can be replaced in the endpoint URL.
 	 * @param string|null       $custom_endpoint The custom endpoint URL to use (optional).
 	 * @param string|array|null $input           Either a path to the JSON file containing providers or an array of providers data. If null, it will be loaded from the default JSON file.
@@ -310,7 +310,7 @@ if ( ! function_exists( 'verify_endpoint' ) ) {
 	 */
 	function verify_endpoint(
 		string $provider_key,
-		string $region_key = null,
+		string $region_key = '',
 		string $account_id = '',
 		?string $custom_endpoint = null,
 		$input = null,

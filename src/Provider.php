@@ -202,17 +202,22 @@ if ( ! class_exists( __NAMESPACE__ . '\\Provider' ) ) :
 		 * Retrieves the endpoint URL for a given region.
 		 *
 		 * @param string      $region_key      The key representing the region.
-		 * @param string      $account_id      The account ID which can be replaced in the endpoint URL.
-		 * @param string|null $custom_endpoint The custom endpoint URL to use (optional).
+		 * @param string      $account_id      The Account ID to be replaced in the endpoint URL, if necessary.
+		 * @param string|null $custom_endpoint Optionally, a custom endpoint URL to be used.
 		 *
-		 * @return string The complete endpoint URL for the given region.
+		 * @return string The constructed endpoint URL for the given region.
 		 *
-		 * @throws Exception When a custom endpoint is required, but not provided.
-		 *                   When the given region does not exist for the provider.
+		 * @throws Exception When the provider requires a custom endpoint, but none is provided.
+		 *                   When the provider requires an Account ID, but none is provided.
+		 *                   When the specified region does not exist for the provider and no custom endpoint is provided.
 		 */
 		public function get_endpoint( string $region_key = '', string $account_id = '', ?string $custom_endpoint = null ): string {
 			if ( $this->requires_custom_endpoint() && empty( $custom_endpoint ) ) {
 				throw new Exception( "A custom endpoint is required for the provider '{$this->key}' when using region '{$region_key}'." );
+			}
+
+			if ( $this->requires_account_id() && empty( $account_id ) ) {
+				throw new Exception( "An Account ID is required for the provider '{$this->key}' when using region '{$region_key}'." );
 			}
 
 			if ( empty( $region_key ) && ! $this->requires_custom_endpoint() ) {
@@ -223,14 +228,11 @@ if ( ! class_exists( __NAMESPACE__ . '\\Provider' ) ) :
 				throw new Exception( "The region '{$region_key}' does not exist for the provider '{$this->key}'." );
 			}
 
-			// Use the custom endpoint if provided, otherwise use the default endpoint
-			$endpoint = ( $custom_endpoint !== null ) ? $custom_endpoint : $this->endpoint;
+			// Use the custom endpoint if provided; otherwise, use the default
+			$endpoint = $custom_endpoint ?? $this->endpoint;
 
 			$endpoint = str_replace( '{region}', $region_key, $endpoint );
-
-			if ( $this->requires_account_id() ) {
-				$endpoint = str_replace( '{account_id}', $account_id, $endpoint );
-			}
+			$endpoint = str_replace( '{account_id}', $account_id, $endpoint );
 
 			return $endpoint;
 		}
@@ -355,7 +357,9 @@ if ( ! class_exists( __NAMESPACE__ . '\\Provider' ) ) :
 			}
 
 			foreach ( $this->regions as $region_key => $region_obj ) {
-				$label = $region_obj->get_label();
+				// Use sprintf to format the label with the region in (eu-west) style
+				$label = sprintf( '%s (%s)', $region_obj->get_label(), $region_obj->get_region() );
+
 
 				if ( $group_by_continent ) {
 					// Group by continent using `get_continent()` method from the Region object

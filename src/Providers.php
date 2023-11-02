@@ -233,7 +233,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\Providers' ) ) :
 		 * Retrieves the endpoint URL for a given provider and optional region.
 		 *
 		 * @param string      $provider_key The unique key identifying the provider.
-		 * @param string|null $region_key   The key of the desired region. If null, the provider's default region is used.
+		 * @param string $region_key   The key of the desired region. If null, the provider's default region is used.
 		 * @param string      $account_id   The account ID which can be replaced in the endpoint URL.
 		 * @param string|null $custom_endpoint The custom endpoint URL to use (optional).
 		 *
@@ -241,7 +241,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\Providers' ) ) :
 		 *
 		 * @throws Exception When the specified region does not exist for the given provider.
 		 */
-		public function get_endpoint( string $provider_key, string $region_key = null, string $account_id = '', ?string $custom_endpoint = null ): string {
+		public function get_endpoint( string $provider_key, string $region_key = '', string $account_id = '', ?string $custom_endpoint = null ): string {
 			$this->validate_provider( $provider_key );
 
 			return $this->providers[ $provider_key ]->get_endpoint( $region_key, $account_id, $custom_endpoint );
@@ -263,7 +263,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\Providers' ) ) :
 		 * @return string True if the endpoint is valid and accessible, otherwise false.
 		 * @throws Exception
 		 */
-		public function verify_endpoint( string $provider_key, string $region_key = null, string $account_id = '', ?string $custom_endpoint = null ): string {
+		public function verify_endpoint( string $provider_key, string $region_key = '', string $account_id = '', ?string $custom_endpoint = null ): string {
 			$this->validate_provider( $provider_key );
 
 			return $this->providers[ $provider_key ]->verify_endpoint( $region_key, $account_id, $custom_endpoint );
