@@ -445,6 +445,22 @@
       "defaultRegion": "auto",
       "pathStyle": true,
       "endpoint": "{account_id}.r2.cloudflarestorage.com"
+    },
+    "custom": {
+      "label": "Custom Provider",
+      "supplier": "ArrayPress",
+      "regions": {
+        "custom": [
+          {
+            "label": "Custom",
+            "region": "custom"
+          }
+        ]
+      },
+      "homepage": "https://www.arraypress.com",
+      "defaultRegion": "custom",
+      "pathStyle": true,
+      "endpoint": "example.com"
     }
   }
 }

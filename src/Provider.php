@@ -201,19 +201,32 @@ if ( ! class_exists( __NAMESPACE__ . '\\Provider' ) ) :
 		/**
 		 * Retrieves the endpoint URL for a given region.
 		 *
-		 * @param string $region_key The key representing the region.
-		 * @param string $account_id The account ID which can be replaced in the endpoint URL.
+		 * @param string      $region_key      The key representing the region.
+		 * @param string      $account_id      The account ID which can be replaced in the endpoint URL.
+		 * @param string|null $custom_endpoint The custom endpoint URL to use (optional).
 		 *
 		 * @return string The complete endpoint URL for the given region.
 		 *
-		 * @throws Exception When the given region does not exist.
+		 * @throws Exception When a custom endpoint is required, but not provided.
+		 *                   When the given region does not exist for the provider.
 		 */
-		public function get_endpoint( string $region_key, string $account_id = '' ): string {
-			if ( ! $this->region_exists( $region_key ) ) {
+		public function get_endpoint( string $region_key = '', string $account_id = '', ?string $custom_endpoint = null ): string {
+			if ( $this->requires_custom_endpoint() && empty( $custom_endpoint ) ) {
+				throw new Exception( "A custom endpoint is required for the provider '{$this->key}' when using region '{$region_key}'." );
+			}
+
+			if ( empty( $region_key ) && ! $this->requires_custom_endpoint() ) {
+				$region_key = $this->get_default_region();
+			}
+
+			if ( ! $this->region_exists( $region_key ) && empty( $custom_endpoint ) ) {
 				throw new Exception( "The region '{$region_key}' does not exist for the provider '{$this->key}'." );
 			}
 
-			$endpoint = str_replace( '{region}', $region_key, $this->endpoint );
+			// Use the custom endpoint if provided, otherwise use the default endpoint
+			$endpoint = ( $custom_endpoint !== null ) ? $custom_endpoint : $this->endpoint;
+
+			$endpoint = str_replace( '{region}', $region_key, $endpoint );
 
 			if ( $this->requires_account_id() ) {
 				$endpoint = str_replace( '{account_id}', $account_id, $endpoint );
@@ -230,15 +243,16 @@ if ( ! class_exists( __NAMESPACE__ . '\\Provider' ) ) :
 		 * is accessible and returns a 200 OK response, the method will return true.
 		 * If there is an exception, or if the domain is not accessible, it will return false.
 		 *
-		 * @param string $region_key The key representing the region.
-		 * @param string $account_id (Optional) The account ID to replace in the endpoint URL.
+		 * @param string      $region_key      The key representing the region.
+		 * @param string      $account_id      (Optional) The account ID to replace in the endpoint URL.
+		 * @param string|null $custom_endpoint The custom endpoint URL to use (optional).
 		 *
 		 * @return bool  True if the endpoint is valid and accessible, otherwise false.
 		 */
-		public function verify_endpoint( string $region_key, string $account_id = '' ): bool {
+		public function verify_endpoint( string $region_key, string $account_id = '', ?string $custom_endpoint = null ): bool {
 			try {
 				// Get the full endpoint URL
-				$endpoint = $this->get_endpoint( $region_key, $account_id );
+				$endpoint = $this->get_endpoint( $region_key, $account_id, $custom_endpoint );
 
 				// Extract domain from the endpoint
 				$domain = parse_url( $endpoint, PHP_URL_HOST );
@@ -299,11 +313,20 @@ if ( ! class_exists( __NAMESPACE__ . '\\Provider' ) ) :
 		}
 
 		/**
+		 * Checks if example.com exists in the endpoint URL/URI.
+		 *
+		 * @return bool True if exists, otherwise false.
+		 */
+		public function requires_custom_endpoint(): bool {
+			return 'custom' === strtolower( $this->get_key() );
+		}
+
+		/**
 		 * Retrieves the list of continents that the provider operates in.
 		 *
 		 * @return array The list of continent names.
 		 */
-		public function get_continents(): array {
+		public function get_supported_continents(): array {
 			$continents = array();
 			foreach ( $this->regions as $region ) {
 				if ( ! in_array( $region->get_continent(), $continents ) ) {

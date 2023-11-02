@@ -116,6 +116,18 @@ if ( ! class_exists( __NAMESPACE__ . '\\Providers' ) ) :
 		}
 
 		/**
+		 * Retrieves the key of the first provider from the providers array.
+		 *
+		 * @return string|null The key of the first provider or null if the providers array is empty.
+		 */
+		public function get_first_provider_key(): ?string {
+			reset( $this->providers ); // Reset the internal pointer of the array
+			$first_provider_key = key( $this->providers ); // Get the key of the current element
+
+			return $first_provider_key ?: null;
+		}
+
+		/**
 		 * Checks if a provider exists by its key.
 		 *
 		 * @param string $provider_key Provider key.
@@ -150,61 +162,6 @@ if ( ! class_exists( __NAMESPACE__ . '\\Providers' ) ) :
 
 
 			return $options;
-		}
-
-		/**
-		 * Validates the existence of a provider by its key.
-		 *
-		 * @param string $provider_key Provider key.
-		 *
-		 * @throws Exception If provider does not exist.
-		 */
-		private function validate_provider( string $provider_key ) {
-			if ( ! isset( $this->providers[ $provider_key ] ) ) {
-				throw new Exception( "The provider '{$provider_key}' does not exist." );
-			}
-		}
-
-		/**
-		 * Retrieves the continents for a given provider.
-		 *
-		 * @param string $provider_key Provider key.
-		 *
-		 * @return array An array of continents for the provider.
-		 * @throws Exception If provider does not exist.
-		 */
-		public function get_provider_continents( string $provider_key ): array {
-			$this->validate_provider( $provider_key );
-
-			return $this->providers[ $provider_key ]->get_continents();
-		}
-
-		/**
-		 * Checks if {account_id} placeholder exists in the endpoint URL/URI.
-		 *
-		 * @param string $provider_key
-		 *
-		 * @return bool True if {account_id} exists, otherwise false.
-		 * @throws Exception If provider does not exist.
-		 */
-		public function provider_requires_account_id( string $provider_key ): bool {
-			$this->validate_provider( $provider_key );
-
-			return $this->providers[ $provider_key ]->requires_account_id();
-		}
-
-		/**
-		 * Indicates if the provider's endpoint uses a path-style URL.
-		 *
-		 * @param string $provider_key
-		 *
-		 * @return bool True if path-style, otherwise false.
-		 * @throws Exception If provider does not exist.
-		 */
-		public function is_provider_path_style( string $provider_key ): bool {
-			$this->validate_provider( $provider_key );
-
-			return $this->providers[ $provider_key ]->is_path_style();
 		}
 
 		/** Regions ***************************************************************/
@@ -278,26 +235,16 @@ if ( ! class_exists( __NAMESPACE__ . '\\Providers' ) ) :
 		 * @param string      $provider_key The unique key identifying the provider.
 		 * @param string|null $region_key   The key of the desired region. If null, the provider's default region is used.
 		 * @param string      $account_id   The account ID which can be replaced in the endpoint URL.
+		 * @param string|null $custom_endpoint The custom endpoint URL to use (optional).
 		 *
 		 * @return string The complete endpoint URL for the given provider and region.
 		 *
 		 * @throws Exception When the specified region does not exist for the given provider.
 		 */
-		public function get_endpoint( string $provider_key, string $region_key = null, string $account_id = '' ): string {
+		public function get_endpoint( string $provider_key, string $region_key = null, string $account_id = '', ?string $custom_endpoint = null ): string {
 			$this->validate_provider( $provider_key );
 
-			$provider   = $this->providers[ $provider_key ];
-			$region_key = $region_key ?: $provider->get_default_region();
-
-			if ( ! $provider->region_exists( $region_key ) ) {
-				throw new Exception( "The region '{$region_key}' does not exist for the provider '{$provider_key}'." );
-			}
-
-			if ( $provider->requires_account_id() && empty( $account_id ) ) {
-				throw new Exception( "An account ID is required for the provider '{$provider_key}' in the region '{$region_key}'." );
-			}
-
-			return $provider->get_endpoint( $region_key, $account_id );
+			return $this->providers[ $provider_key ]->get_endpoint( $region_key, $account_id, $custom_endpoint );
 		}
 
 		/**
@@ -311,25 +258,30 @@ if ( ! class_exists( __NAMESPACE__ . '\\Providers' ) ) :
 		 * @param string      $provider_key The unique key identifying the provider.
 		 * @param string|null $region_key   The key representing the region.
 		 * @param string      $account_id   (Optional) The account ID to replace in the endpoint URL.
+		 * @param string|null $custom_endpoint The custom endpoint URL to use (optional).
 		 *
 		 * @return string True if the endpoint is valid and accessible, otherwise false.
 		 * @throws Exception
 		 */
-		public function verify_endpoint( string $provider_key, string $region_key = null, string $account_id = '' ): string {
+		public function verify_endpoint( string $provider_key, string $region_key = null, string $account_id = '', ?string $custom_endpoint = null ): string {
 			$this->validate_provider( $provider_key );
 
-			$provider   = $this->providers[ $provider_key ];
-			$region_key = $region_key ?: $provider->get_default_region();
+			return $this->providers[ $provider_key ]->verify_endpoint( $region_key, $account_id, $custom_endpoint );
+		}
 
-			if ( ! $provider->region_exists( $region_key ) ) {
-				throw new Exception( "The region '{$region_key}' does not exist for the provider '{$provider_key}'." );
+		/** Validation ************************************************************/
+
+		/**
+		 * Validates the existence of a provider by its key.
+		 *
+		 * @param string $provider_key Provider key.
+		 *
+		 * @throws Exception If provider does not exist.
+		 */
+		private function validate_provider( string $provider_key ) {
+			if ( ! isset( $this->providers[ $provider_key ] ) ) {
+				throw new Exception( "The provider '{$provider_key}' does not exist." );
 			}
-
-			if ( $provider->requires_account_id() && empty( $account_id ) ) {
-				throw new Exception( "An account ID is required for the provider '{$provider_key}' in the region '{$region_key}'." );
-			}
-
-			return $provider->verify_endpoint( $region_key, $account_id );
 		}
 
 		/** Loader ****************************************************************/
