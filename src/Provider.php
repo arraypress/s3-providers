@@ -194,7 +194,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\Provider' ) ) :
 		 *
 		 * @return bool True if path-style, otherwise false.
 		 */
-		public function get_path_style(): bool {
+		public function is_path_style(): bool {
 			return $this->path_style;
 		}
 
@@ -215,7 +215,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\Provider' ) ) :
 
 			$endpoint = str_replace( '{region}', $region_key, $this->endpoint );
 
-			if ( $this->has_account_id() ) {
+			if ( $this->requires_account_id() ) {
 				$endpoint = str_replace( '{account_id}', $account_id, $endpoint );
 			}
 
@@ -294,19 +294,8 @@ if ( ! class_exists( __NAMESPACE__ . '\\Provider' ) ) :
 		 *
 		 * @return bool True if {account_id} exists, otherwise false.
 		 */
-		public function has_account_id(): bool {
+		public function requires_account_id(): bool {
 			return strpos( $this->endpoint, '{account_id}' ) !== false;
-		}
-
-		/**
-		 * Retrieves the key of the first region from the regions array.
-		 *
-		 * @return string|null The key of the first region or null if the regions array is empty.
-		 */
-		public function get_first_region(): ?string {
-			$first_region = reset( $this->regions );
-
-			return $first_region ? $first_region->get_region() : null;
 		}
 
 		/**

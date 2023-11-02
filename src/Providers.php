@@ -140,25 +140,16 @@ if ( ! class_exists( __NAMESPACE__ . '\\Providers' ) ) :
 				$options[''] = $empty_label;
 			}
 
-			foreach ( $this->providers as $provider_key => $provider_obj ) {
-				if ( ! array_key_exists( $provider_key, $options ) ) {
-					$options[ $provider_key ] = $provider_obj->get_label();
+			if ( ! empty( $this->providers ) ) {
+				foreach ( $this->providers as $provider_key => $provider_obj ) {
+					if ( ! array_key_exists( $provider_key, $options ) ) {
+						$options[ $provider_key ] = $provider_obj->get_label();
+					}
 				}
 			}
 
+
 			return $options;
-		}
-
-		/**
-		 * Retrieves the key of the first provider from the providers array.
-		 *
-		 * @return string|null The key of the first provider or null if the providers array is empty.
-		 */
-		public function get_first_provider(): ?string {
-			reset( $this->providers ); // Reset the internal pointer of the array
-			$first_provider_key = key( $this->providers ); // Get the key of the current element
-
-			return $first_provider_key ?: null;
 		}
 
 		/**
@@ -186,6 +177,34 @@ if ( ! class_exists( __NAMESPACE__ . '\\Providers' ) ) :
 			$this->validate_provider( $provider_key );
 
 			return $this->providers[ $provider_key ]->get_continents();
+		}
+
+		/**
+		 * Checks if {account_id} placeholder exists in the endpoint URL/URI.
+		 *
+		 * @param string $provider_key
+		 *
+		 * @return bool True if {account_id} exists, otherwise false.
+		 * @throws Exception If provider does not exist.
+		 */
+		public function provider_requires_account_id( string $provider_key ): bool {
+			$this->validate_provider( $provider_key );
+
+			return $this->providers[ $provider_key ]->requires_account_id();
+		}
+
+		/**
+		 * Indicates if the provider's endpoint uses a path-style URL.
+		 *
+		 * @param string $provider_key
+		 *
+		 * @return bool True if path-style, otherwise false.
+		 * @throws Exception If provider does not exist.
+		 */
+		public function is_provider_path_style( string $provider_key ): bool {
+			$this->validate_provider( $provider_key );
+
+			return $this->providers[ $provider_key ]->is_path_style();
 		}
 
 		/** Regions ***************************************************************/
@@ -235,32 +254,6 @@ if ( ! class_exists( __NAMESPACE__ . '\\Providers' ) ) :
 		}
 
 		/**
-		 * Retrieves the regions of the first provider in the list.
-		 *
-		 * @return array An array of regions associated with the first provider.
-		 *               If no provider is found or the provider has no regions, an empty array is returned.
-		 * @throws Exception If provider does not exist.
-		 */
-		public function get_first_provider_regions(): array {
-			return $this->get_regions( $this->get_first_provider() );
-		}
-
-		/**
-		 * Retrieves the region options of the first provider in the list.
-		 *
-		 * @param string $empty_label        Label to use for the empty option. If not provided or empty,
-		 *                                   the empty option will be omitted.
-		 * @param bool   $group_by_continent If true, group regions by their respective continents.
-		 *
-		 * @return array Depending on the grouping flag, it either returns a simple associative array of
-		 *               regions or a nested associative array grouped by continents.
-		 * @throws Exception When the specified region does not exist for the given provider.
-		 */
-		public function get_first_provider_region_options( string $empty_label = '', bool $group_by_continent = false ): array {
-			return $this->get_region_options( $this->get_first_provider(), $empty_label, $group_by_continent );
-		}
-
-		/**
 		 * Returns an array of regions suitable for use in dropdown menus, etc.
 		 *
 		 * @param string $empty_label        Label to use for the empty option. If not provided or empty,
@@ -300,7 +293,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\Providers' ) ) :
 				throw new Exception( "The region '{$region_key}' does not exist for the provider '{$provider_key}'." );
 			}
 
-			if ( $provider->has_account_id() && empty( $account_id ) ) {
+			if ( $provider->requires_account_id() && empty( $account_id ) ) {
 				throw new Exception( "An account ID is required for the provider '{$provider_key}' in the region '{$region_key}'." );
 			}
 
@@ -332,41 +325,11 @@ if ( ! class_exists( __NAMESPACE__ . '\\Providers' ) ) :
 				throw new Exception( "The region '{$region_key}' does not exist for the provider '{$provider_key}'." );
 			}
 
-			if ( $provider->has_account_id() && empty( $account_id ) ) {
+			if ( $provider->requires_account_id() && empty( $account_id ) ) {
 				throw new Exception( "An account ID is required for the provider '{$provider_key}' in the region '{$region_key}'." );
 			}
 
 			return $provider->verify_endpoint( $region_key, $account_id );
-		}
-
-		/** Helper ****************************************************************/
-
-		/**
-		 * Checks if {account_id} placeholder exists in the endpoint URL/URI.
-		 *
-		 * @param string $provider_key
-		 *
-		 * @return bool True if {account_id} exists, otherwise false.
-		 * @throws Exception If provider does not exist.
-		 */
-		public function has_account_id( string $provider_key ): bool {
-			$this->validate_provider( $provider_key );
-
-			return $this->providers[ $provider_key ]->has_account_id();
-		}
-
-		/**
-		 * Indicates if the provider's endpoint uses a path-style URL.
-		 *
-		 * @param string $provider_key
-		 *
-		 * @return bool True if path-style, otherwise false.
-		 * @throws Exception If provider does not exist.
-		 */
-		public function is_path_style( string $provider_key ): bool {
-			$this->validate_provider( $provider_key );
-
-			return $this->providers[ $provider_key ]->get_path_style();
 		}
 
 		/** Loader ****************************************************************/
