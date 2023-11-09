@@ -87,8 +87,8 @@
       "endpoint": "{region}.linodeobjects.com"
     },
     "digitalocean": {
-      "label": "DigitalOcean Spaces",
-      "supplier": "DigitalOcean",
+      "label": "Digital Ocean Spaces",
+      "supplier": "Digital Ocean",
       "regions": {
         "NA": [
           {
