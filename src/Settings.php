@@ -133,16 +133,22 @@ if ( ! class_exists( __NAMESPACE__ . '\\Settings' ) ) :
 				// Build the option key with the prefix (if set)
 				$option_key = $option_prefix ? $option_prefix . $key : $key;
 
-				try {
-					// Use the callback to retrieve the option value
-					$option_value = call_user_func( $options_getter, $option_key );
-				} catch ( Exception $e ) {
-					throw new Exception( "Error retrieving option '$option_key': " . $e->getMessage() );
+				// Check if the option is defined in wp-config.php
+				if ( defined( $option_key ) ) {
+					$option_value = constant( $option_key );
+				} else {
+					try {
+						// Use the callback to retrieve the option value
+						$option_value = call_user_func( $options_getter, $option_key );
+					} catch ( Exception $e ) {
+						throw new Exception( "Error retrieving option '$option_key': " . $e->getMessage() );
+					}
 				}
 
 				// Use a ternary expression to handle string trimming and default values
 				$this->{$key} = is_string( $option_value ) ? trim( $option_value ) : ( $option_value ?? $default );
 			}
+
 
 			$this->validate_options();
 
