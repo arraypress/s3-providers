@@ -229,7 +229,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\Provider' ) ) :
 			}
 
 			// Use the custom endpoint if provided; otherwise, use the default
-			$endpoint = $custom_endpoint ?? $this->endpoint;
+			$endpoint = ! empty( $custom_endpoint ) ? trim( $custom_endpoint ) : $this->endpoint;
 
 			$endpoint = str_replace( '{region}', $region_key, $endpoint );
 			$endpoint = str_replace( '{account_id}', $account_id, $endpoint );

@@ -227,14 +227,28 @@ if ( ! class_exists( __NAMESPACE__ . '\\Providers' ) ) :
 			return $this->providers[ $provider_key ]->get_region_options( $empty_label, $group_by_continent );
 		}
 
+		/**
+		 * Retrieve the default region key for the provider.
+		 *
+		 * @param string $provider_key Provider key.
+		 *
+		 * @return string The default region key for this provider.
+		 * @throws Exception If the provider does not exist.
+		 */
+		public function get_default_region( string $provider_key ): string {
+			$this->validate_provider( $provider_key );
+
+			return $this->providers[ $provider_key ]->get_default_region();
+		}
+
 		/** Endpoints *************************************************************/
 
 		/**
 		 * Retrieves the endpoint URL for a given provider and optional region.
 		 *
-		 * @param string      $provider_key The unique key identifying the provider.
-		 * @param string $region_key   The key of the desired region. If null, the provider's default region is used.
-		 * @param string      $account_id   The account ID which can be replaced in the endpoint URL.
+		 * @param string      $provider_key    The unique key identifying the provider.
+		 * @param string      $region_key      The key of the desired region. If null, the provider's default region is used.
+		 * @param string      $account_id      The account ID which can be replaced in the endpoint URL.
 		 * @param string|null $custom_endpoint The custom endpoint URL to use (optional).
 		 *
 		 * @return string The complete endpoint URL for the given provider and region.
@@ -255,9 +269,9 @@ if ( ! class_exists( __NAMESPACE__ . '\\Providers' ) ) :
 		 * is accessible and returns a 200 OK response, the method will return true.
 		 * If there is an exception, or if the domain is not accessible, it will return false.
 		 *
-		 * @param string      $provider_key The unique key identifying the provider.
-		 * @param string|null $region_key   The key representing the region.
-		 * @param string      $account_id   (Optional) The account ID to replace in the endpoint URL.
+		 * @param string      $provider_key    The unique key identifying the provider.
+		 * @param string|null $region_key      The key representing the region.
+		 * @param string      $account_id      (Optional) The account ID to replace in the endpoint URL.
 		 * @param string|null $custom_endpoint The custom endpoint URL to use (optional).
 		 *
 		 * @return string True if the endpoint is valid and accessible, otherwise false.

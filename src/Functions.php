@@ -95,6 +95,40 @@ if ( ! function_exists( 'get_provider' ) ) {
 	}
 }
 
+if ( ! function_exists( 'get_provider_default_region' ) ) {
+	/**
+	 * Retrieves the default region for a provider or handles errors gracefully if exceptions occur.
+	 *
+	 * @param string            $provider_key   The provider key.
+	 * @param string|array|null $input          Either a path to the JSON file containing provider data or an array of provider data. If null, it will be loaded from the default JSON file.
+	 * @param string            $context        Describes how the region options are being retrieved, useful for filtering by specific plugins that use the library.
+	 * @param callable|null     $error_callback Callback function for error handling.
+	 *
+	 * @return string|null The default region string or null on failure.
+	 *
+	 * @throws Exception If an exception occurs while retrieving the region.
+	 */
+	function get_provider_default_region(
+		string $provider_key,
+		$input = null,
+		string $context = '',
+		?callable $error_callback = null
+	): ?string {
+		try {
+			$providers = new Providers( $input, $context );
+
+			return $providers->get_default_region( $provider_key );
+		} catch ( Exception $e ) {
+			if ( is_callable( $error_callback ) ) {
+				call_user_func( $error_callback, $e );
+			}
+
+			// Handle the exception or log it if needed
+			return null; // Return null on failure
+		}
+	}
+}
+
 /** Regions ***************************************************************/
 
 if ( ! function_exists( 'get_regions' ) ) {
@@ -193,8 +227,9 @@ if ( ! function_exists( 'get_provider_options' ) ) {
 		string $empty_label = '',
 		?callable $error_callback = null
 	) {
-		$providers = new Providers( $input, $context );
 		try {
+			$providers = new Providers( $input, $context );
+
 			return $providers->get_provider_options( $empty_label );
 		} catch ( Exception $e ) {
 			if ( is_callable( $error_callback ) ) {
@@ -328,6 +363,66 @@ if ( ! function_exists( 'verify_endpoint' ) ) {
 
 			// Handle the exception here (e.g., log it or return a default value)
 			return false; // Return false as a fallback
+		}
+	}
+}
+
+/** Settings **************************************************************/
+
+if ( ! function_exists( 'has_credentials' ) ) {
+	/**
+	 * Checks if valid credentials are available for generating S3 signer arguments.
+	 *
+	 * This function determines whether the provided options contain valid credentials
+	 * necessary for generating arguments required by an S3 signer.
+	 *
+	 * @param string        $options_getter The function used to retrieve option values (defaults to 'get_option').
+	 * @param string|null   $option_prefix  An optional prefix for option keys.
+	 * @param callable|null $error_callback An optional callback for handling errors and exceptions.
+	 *
+	 * @return bool True if valid credentials are available, false otherwise.
+	 * @throws Exception If an exception occurs during credential validation.
+	 */
+	function has_credentials( string $options_getter = 'get_option', string $option_prefix = null, ?callable $error_callback = null ): bool {
+		try {
+			$settings = new Settings( $options_getter, $option_prefix );
+
+			return $settings->has_credentials();
+		} catch ( Exception $e ) {
+			if ( is_callable( $error_callback ) ) {
+				call_user_func( $error_callback, $e );
+			}
+
+			// Handle the exception or log it if needed
+			return false;
+		}
+	}
+}
+
+if ( ! function_exists( 'get_signer_args' ) ) {
+	/**
+	 * Determines if the provided options are valid for generating S3 signer arguments.
+	 *
+	 * @param string        $options_getter The getter function to retrieve option values (defaults to 'get_option').
+	 * @param string|null   $option_prefix  An optional prefix for option keys.
+	 * @param array         $args           Additional arguments for generating S3 signer arguments.
+	 * @param callable|null $error_callback Callback function for error handling in case of exceptions.
+	 *
+	 * @return array True if the S3 signer arguments can be generated successfully, false otherwise.
+	 * @throws Exception
+	 */
+	function get_signer_args( string $options_getter = 'get_option', string $option_prefix = null, array $args = [], ?callable $error_callback = null ): ?array {
+		try {
+			$settings = new Settings( $options_getter, $option_prefix );
+
+			return $settings->get_signer_args( $args );
+		} catch ( Exception $e ) {
+			if ( is_callable( $error_callback ) ) {
+				call_user_func( $error_callback, $e );
+			}
+
+			// Handle the exception or log it if needed
+			return null;
 		}
 	}
 }
