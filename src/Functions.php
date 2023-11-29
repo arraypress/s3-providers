@@ -327,46 +327,6 @@ if ( ! function_exists( 'get_endpoint' ) ) {
 	}
 }
 
-if ( ! function_exists( 'verify_endpoint' ) ) {
-	/**
-	 * Retrieves the endpoint URL for a given provider and optional region.
-	 *
-	 * @param string            $provider_key    The unique key identifying the provider.
-	 * @param string            $region_key      The key of the desired region. If null, the provider's default region is used.
-	 * @param string            $account_id      The account ID which can be replaced in the endpoint URL.
-	 * @param string|null       $custom_endpoint The custom endpoint URL to use (optional).
-	 * @param string|array|null $input           Either a path to the JSON file containing providers or an array of providers data. If null, it will be loaded from the default JSON file.
-	 * @param string            $context         Describes how the region options are being retrieved, useful for filtering by specific plugins that use the library.
-	 * @param callable|null     $error_callback  Callback function for error handling.
-	 *
-	 * @return boolean|false The complete endpoint URL for the given provider and region, or false on failure.
-	 *
-	 * @throws Exception When the specified region does not exist for the given provider.
-	 */
-	function verify_endpoint(
-		string $provider_key,
-		string $region_key = '',
-		string $account_id = '',
-		?string $custom_endpoint = null,
-		$input = null,
-		string $context = '',
-		?callable $error_callback = null
-	): bool {
-		try {
-			$providers = new Providers( $input, $context );
-
-			return $providers->verify_endpoint( $provider_key, $region_key, $account_id, $custom_endpoint );
-		} catch ( Exception $e ) {
-			if ( is_callable( $error_callback ) ) {
-				call_user_func( $error_callback, $e );
-			}
-
-			// Handle the exception here (e.g., log it or return a default value)
-			return false; // Return false as a fallback
-		}
-	}
-}
-
 /** Settings **************************************************************/
 
 if ( ! function_exists( 'has_credentials' ) ) {

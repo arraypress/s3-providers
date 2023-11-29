@@ -74,9 +74,9 @@ if ( ! class_exists( __NAMESPACE__ . '\\Settings' ) ) :
 		private string $account_id;
 
 		/**
-		 * @var Boolean Is Path Style?
+		 * @var Boolean Use Path Style?
 		 */
-		private bool $is_path_style;
+		private bool $use_path_style;
 
 		/**
 		 * @var string Default Bucket
@@ -86,7 +86,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\Settings' ) ) :
 		/**
 		 * @var int Period
 		 */
-		private int $period;
+		private int $duration;
 
 		/**
 		 * @var string Extra Query String
@@ -122,16 +122,16 @@ if ( ! class_exists( __NAMESPACE__ . '\\Settings' ) ) :
 				'custom_region'      => '',
 				'custom_endpoint'    => '',
 				'account_id'         => '',
-				'is_path_style'      => false,
+				'use_path_style'     => true,
 				'default_bucket'     => '',
-				'period'             => 5,
+				'duration'           => 5,
 				'extra_query_string' => ''
 			);
 
 			// Iterate over the defaults array and map options to class variables
 			foreach ( $options as $key => $default ) {
 				// Build the option key with the prefix (if set)
-				$option_key = $option_prefix ? $option_prefix . $key : $key;
+				$option_key = $option_prefix ? $option_prefix . '_' . $key : $key;
 
 				// Check if the option is defined in wp-config.php
 				if ( defined( $option_key ) ) {
@@ -173,7 +173,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\Settings' ) ) :
 			if ( $this->provider_obj->requires_custom_endpoint() && ! empty( $this->custom_region ) ) {
 				$this->region = strtolower( $this->custom_region );
 			} else {
-				$this->is_path_style = $this->provider_obj->is_path_style();
+				$this->use_path_style = $this->provider_obj->use_path_style();
 			}
 		}
 
@@ -233,7 +233,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\Settings' ) ) :
 			}
 
 			// Check if the specified period is a positive integer
-			if ( ! Validate::is_valid( $this->period, 'period' ) ) {
+			if ( ! Validate::is_valid( $this->duration, 'duration' ) ) {
 				throw new Exception( "Period must be a positive integer." );
 			}
 
@@ -271,9 +271,9 @@ if ( ! class_exists( __NAMESPACE__ . '\\Settings' ) ) :
 					'secret_key'         => $this->secret_key,
 					'endpoint'           => $this->get_endpoint(),
 					'region'             => $this->region,
-					'use_path_style'     => $this->is_path_style,
+					'use_path_style'     => $this->use_path_style,
 					'extra_query_string' => $this->extra_query_string,
-					'period'             => $this->period
+					'duration'           => $this->duration
 				],
 				$args
 			);

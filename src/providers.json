@@ -2,7 +2,7 @@
   "providers": {
     "linode": {
       "label": "Linode Object Storage",
-      "supplier": "Linode",
+      "supplier": "Akamai",
       "regions": {
         "NA": [
           {
@@ -83,12 +83,12 @@
       },
       "homepage": "https://www.linode.com/products/object-storage/",
       "defaultRegion": "us-east-1",
-      "pathStyle": true,
+      "usePathStyle": true,
       "endpoint": "{region}.linodeobjects.com"
     },
     "digitalocean": {
-      "label": "Digital Ocean Spaces",
-      "supplier": "Digital Ocean",
+      "label": "DigitalOcean Spaces",
+      "supplier": "DigitalOcean",
       "regions": {
         "NA": [
           {
@@ -133,7 +133,7 @@
       },
       "homepage": "https://www.digitalocean.com/products/spaces/",
       "defaultRegion": "sfo3",
-      "pathStyle": false,
+      "usePathStyle": false,
       "endpoint": "{region}.digitaloceanspaces.com"
     },
     "aws": {
@@ -281,7 +281,7 @@
       },
       "homepage": "https://aws.amazon.com/s3/",
       "defaultRegion": "us-east-1",
-      "pathStyle": true,
+      "usePathStyle": true,
       "endpoint": "s3.{region}.amazonaws.com"
     },
     "backblaze": {
@@ -319,7 +319,7 @@
       },
       "homepage": "https://www.backblaze.com/b2/",
       "defaultRegion": "us-west-004",
-      "pathStyle": false,
+      "usePathStyle": false,
       "endpoint": "s3.{region}.backblazeb2.com"
     },
     "wasabi": {
@@ -387,7 +387,7 @@
       },
       "homepage": "https://wasabi.com/",
       "defaultRegion": "us-east-1",
-      "pathStyle": false,
+      "usePathStyle": false,
       "endpoint": "s3.{region}.wasabisys.com"
     },
     "vultr": {
@@ -427,7 +427,7 @@
       },
       "homepage": "https://www.vultr.com/products/object-storage/",
       "defaultRegion": "ewr1",
-      "pathStyle": true,
+      "usePathStyle": true,
       "endpoint": "{region}.vultrobjects.com"
     },
     "cloudflare": {
@@ -443,7 +443,7 @@
       },
       "homepage": "https://www.cloudflare.com/products/r2/",
       "defaultRegion": "auto",
-      "pathStyle": true,
+      "usePathStyle": true,
       "endpoint": "{account_id}.r2.cloudflarestorage.com"
     },
     "custom": {
@@ -459,7 +459,7 @@
       },
       "homepage": "https://www.arraypress.com",
       "defaultRegion": "custom",
-      "pathStyle": true,
+      "usePathStyle": true,
       "endpoint": "example.com"
     }
   }

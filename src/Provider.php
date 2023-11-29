@@ -74,7 +74,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\Provider' ) ) :
 		 *
 		 * @var bool
 		 */
-		private bool $path_style;
+		private bool $use_path_style;
 
 		/**
 		 * Base endpoint URL structure for this provider.
@@ -109,7 +109,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\Provider' ) ) :
 			$this->endpoint       = $data['endpoint'] ?? '';
 
 			// Set path_style to false by default if not provided or invalid.
-			$this->path_style = isset( $data['pathStyle'] ) && Sanitize::bool( $data['pathStyle'] );
+			$this->use_path_style = isset( $data['usePathStyle'] ) && Sanitize::bool( $data['usePathStyle'] );
 
 			if ( ! isset( $data['regions'] ) || ! is_array( $data['regions'] ) ) {
 				throw new Exception( "Invalid or missing 'regions' data for provider '{$this->key}'." );
@@ -194,8 +194,8 @@ if ( ! class_exists( __NAMESPACE__ . '\\Provider' ) ) :
 		 *
 		 * @return bool True if path-style, otherwise false.
 		 */
-		public function is_path_style(): bool {
-			return $this->path_style;
+		public function use_path_style(): bool {
+			return $this->use_path_style;
 		}
 
 		/**
@@ -235,43 +235,6 @@ if ( ! class_exists( __NAMESPACE__ . '\\Provider' ) ) :
 			$endpoint = str_replace( '{account_id}', $account_id, $endpoint );
 
 			return $endpoint;
-		}
-
-		/**
-		 * Verifies if the endpoint for the given region and account ID is accessible.
-		 *
-		 * This method checks the accessibility of the domain derived from the endpoint
-		 * URL of the provider for a given region and account ID. If the endpoint domain
-		 * is accessible and returns a 200 OK response, the method will return true.
-		 * If there is an exception, or if the domain is not accessible, it will return false.
-		 *
-		 * @param string      $region_key      The key representing the region.
-		 * @param string      $account_id      (Optional) The account ID to replace in the endpoint URL.
-		 * @param string|null $custom_endpoint The custom endpoint URL to use (optional).
-		 *
-		 * @return bool  True if the endpoint is valid and accessible, otherwise false.
-		 */
-		public function verify_endpoint( string $region_key, string $account_id = '', ?string $custom_endpoint = null ): bool {
-			try {
-				// Get the full endpoint URL
-				$endpoint = $this->get_endpoint( $region_key, $account_id, $custom_endpoint );
-
-				// Extract domain from the endpoint
-				$domain = parse_url( $endpoint, PHP_URL_HOST );
-
-				// Check if the domain is accessible
-				$headers = @get_headers( "https://" . $domain );
-
-				if ( $headers && strpos( $headers[0], '200 OK' ) !== false ) {
-					return true; // Endpoint is valid
-				}
-
-			} catch ( Exception $e ) {
-				// Log the exception if necessary or perform other actions
-				// For now, we'll just silently catch it and return false below
-			}
-
-			return false; // Endpoint is not valid or not accessible
 		}
 
 		/**
