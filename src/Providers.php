@@ -79,7 +79,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\Providers' ) ) :
 			 * @param Providers $this           The instance of the Providers class.
 			 */
 			if ( function_exists( 'apply_filters' ) ) {
-				$providers_data = apply_filters( 'arraypress\utils\s3\filter_providers_data', $providers_data, $context, $this );
+				$providers_data = apply_filters( 's3_providers_data', $providers_data, $context, $this );
 			}
 
 			foreach ( $providers_data as $key => $provider_data ) {
