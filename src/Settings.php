@@ -208,11 +208,11 @@ if ( ! class_exists( __NAMESPACE__ . '\\Settings' ) ) :
 
 			if ( $provider->requires_custom_endpoint() ) {
 				// Check if a custom endpoint and custom region are provided and valid
-				if ( empty( $this->custom_endpoint ) || ! Validation::endpoint( $this->custom_endpoint ) ) {
+				if ( empty( $this->custom_endpoint ) || ! Validate::is_valid( $this->custom_endpoint, 'endpoint' ) ) {
 					throw new Exception( "Custom Endpoint is required and must be a valid URL for this Storage Provider." );
 				}
 
-				if ( empty( $this->custom_region ) || ! Validation::region( $this->custom_region ) ) {
+				if ( empty( $this->custom_region ) || ! Validate::is_valid( $this->custom_region, 'region' ) ) {
 					throw new Exception( "Custom Region is required and must be a valid region for this Storage Provider." );
 				}
 			} else {
@@ -228,17 +228,17 @@ if ( ! class_exists( __NAMESPACE__ . '\\Settings' ) ) :
 			}
 
 			// Check if a default bucket is provided and if it's valid
-			if ( ! empty( $this->default_bucket ) && ! Validation::bucket( $this->default_bucket ) ) {
+			if ( ! empty( $this->default_bucket ) && ! Validate::is_valid( $this->default_bucket, 'bucket' ) ) {
 				throw new Exception( "Invalid Default Bucket specified." );
 			}
 
 			// Check if the specified period is a positive integer
-			if ( ! Validation::period( $this->period ) ) {
+			if ( ! Validate::is_valid( $this->period, 'period' ) ) {
 				throw new Exception( "Period must be a positive integer." );
 			}
 
 			// Check if the extra query string, if provided, is valid
-			if ( ! empty( $this->extra_query_string ) && ! Validation::extra_query_string( $this->extra_query_string ) ) {
+			if ( ! empty( $this->extra_query_string ) && ! Validate::is_valid( $this->extra_query_string, 'extra_query_string' ) ) {
 				throw new Exception( "Invalid extra query string specified." );
 			}
 		}
@@ -248,7 +248,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\Settings' ) ) :
 		 *
 		 * @return bool True if the credentials are valid, otherwise false.
 		 */
-		public function has_credentials() {
+		public function has_credentials(): bool {
 			if ( $this->provider_obj->requires_account_id() ) {
 				return ! empty( $this->account_id ) && ! empty( $this->access_key ) && ! empty( $this->secret_key );
 			} else {
