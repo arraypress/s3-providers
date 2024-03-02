@@ -1,6 +1,6 @@
 <?php
 /**
- * S3 Processor Class
+ * S3 Path Processor Class
  *
  * This class serves as a comprehensive utility for interacting with S3 services.
  * It encapsulates the functionality for validating S3 settings, parsing file paths, and generating
@@ -13,17 +13,18 @@
  * - Parsing S3 paths to extract bucket and object details.
  * - Generating pre-signed URLs for secure, temporary access to S3 objects.
  *
- * @package     ArrayPress/Utils/S3
- * @copyright   Copyright (c) 2023, ArrayPress Limited
+ * @package     ArrayPress/s3-providers
+ * @copyright   Copyright (c) 2024, ArrayPress Limited
  * @license     GPL2+
  * @since       1.0.0
  * @author      David Sherlock
  */
 
-namespace ArrayPress\Utils\S3;
+namespace ArrayPress\S3\Providers;
 
 use Exception;
-use InvalidArgumentException;
+use function ArrayPress\S3\getObjectUrl;
+use function ArrayPress\S3\parsePath;
 
 /**
  * S3 Utility Class (Processor)
@@ -40,138 +41,217 @@ if ( ! class_exists( __NAMESPACE__ . '\\Processor' ) ) :
 
 		/**
 		 * The S3 file name or path.
+		 *
 		 * @var string
 		 */
-		private string $file_name;
+		private string $path;
 
 		/**
 		 * Function name for getting options.
+		 *
 		 * @var string
 		 */
-		private string $options_getter;
+		private string $optionsGetter;
 
 		/**
 		 * Prefix for the options.
+		 *
 		 * @var string
 		 */
-		private string $option_prefix;
+		private string $optionPrefix;
 
 		/**
 		 * Optional callback for error handling.
+		 *
 		 * @var string
 		 */
-		private string $error_callback;
+		private string $errorCallback;
 
 		/**
 		 * Array of settings arguments.
-		 * @var array|null
+		 *
+		 * @var object|null
 		 */
-		private ?array $settings_args = null;
+		private ?object $settings = null;
 
 		/**
 		 * List of allowed file extensions.
+		 *
 		 * @var array
 		 */
-		private array $allowed_extensions;
+		private array $allowedExtensions;
 
 		/**
 		 * List of disallowed protocols.
+		 *
 		 * @var array
 		 */
-		private array $disallowed_protocols;
+		private array $disallowedProtocols;
 
 		/**
 		 * Constructor for the S3 Processor class.
 		 *
-		 * Initializes the class with the provided arguments, sets up the settings, and
-		 * prepares it for generating signed S3 URLs.
-		 *
-		 * @param array $args Array of arguments to initialize the class.
+		 * @param string        $path                The S3 file name or path.
+		 * @param string        $optionsGetter       Function name for getting options.
+		 * @param string        $optionPrefix        Prefix for the options.
+		 * @param callable|null $errorCallback       Optional callback for error handling.
+		 * @param array         $allowedExtensions   List of allowed file extensions.
+		 * @param array         $disallowedProtocols List of disallowed protocols.
 		 */
-		public function __construct( array $args ) {
-			// Default argument values
-			$defaults = [
-				'file_name'            => '',
-				'options_getter'       => '',
-				'option_prefix'        => '',
-				'error_callback'       => null,
-				'allowed_extensions'   => [],
-				'disallowed_protocols' => []
-			];
+		public function __construct(
+			string $path = '',
+			string $optionsGetter = '',
+			string $optionPrefix = '',
+			?callable $errorCallback = null,
+			array $allowedExtensions = [],
+			array $disallowedProtocols = []
+		) {
+			$this->path                = $path;
+			$this->optionsGetter       = $optionsGetter;
+			$this->optionPrefix        = $optionPrefix;
+			$this->errorCallback       = $errorCallback;
+			$this->allowedExtensions   = $allowedExtensions;
+			$this->disallowedProtocols = $disallowedProtocols;
 
-			// Merge defaults with provided arguments
-			$args = array_merge( $defaults, $args );
-
-			// Set class properties
-			$this->file_name      = trim( $args['file_name'] );
-			$this->options_getter = trim( $args['options_getter'] );
-			$this->option_prefix  = trim( $args['option_prefix'] );
-			$this->error_callback = trim( $args['error_callback'] );
-
-			$this->allowed_extensions   = $args['allowed_extensions'];
-			$this->disallowed_protocols = $args['disallowed_protocols'];
-
-			// Initialize settings and handle any exceptions
 			try {
-				$settings            = new Settings( $this->options_getter, $this->option_prefix );
-				$this->settings_args = $settings->get_signer_args();
+				$settings       = new Settings( $this->optionsGetter, $this->optionPrefix );
+				$this->settings = $settings->getSignerProperties();
 			} catch ( Exception $e ) {
-				$this->handle_error( $e );
+				$this->handleError( $e );
 
 				return;
 			}
 		}
 
+		/** Setters ***************************************************************/
+
+		/**
+		 * Sets the S3 file name or path.
+		 *
+		 * This method updates the path property of the class.
+		 *
+		 * @param string $path The new S3 file name or path.
+		 */
+		public function setPath( string $path ): void {
+			$this->path = $path;
+		}
+
+		/**
+		 * Sets the list of allowed file extensions.
+		 *
+		 * This method ensures that the list of allowed extensions is unique and updates
+		 * the class's configuration accordingly. File extensions should be provided without
+		 * leading dots (e.g., 'jpg' instead of '.jpg').
+		 *
+		 * @param array $allowedExtensions An array of allowed file extensions.
+		 */
+		public function setAllowedExtensions( array $allowedExtensions ): void {
+			$this->allowedExtensions = array_unique( $allowedExtensions );
+		}
+
+		/**
+		 * Adds a single allowed file extension to the list of allowed extensions.
+		 *
+		 * This method ensures that the added extension is unique within the list of allowed
+		 * extensions. It does not add the extension if it already exists in the list.
+		 * File extensions should be provided without leading dots (e.g., 'jpg' instead of '.jpg').
+		 *
+		 * @param string $extension The file extension to add to the list of allowed extensions.
+		 */
+		public function addAllowedExtension( string $extension ): void {
+			$extension = trim( $extension );
+			if ( ! in_array( $extension, $this->allowedExtensions ) ) {
+				$this->allowedExtensions[] = $extension;
+			}
+		}
+
+		/**
+		 * Adds a protocol to the list of disallowed protocols.
+		 *
+		 * This method ensures that the added protocol is unique within the list of disallowed
+		 * protocols. It does not add the protocol if it already exists in the list.
+		 *
+		 * @param string $protocol The protocol to add to the list of disallowed protocols.
+		 */
+		public function addDisallowedProtocol( string $protocol ): void {
+			$protocol = trim( $protocol );
+			if ( ! in_array( $protocol, $this->disallowedProtocols ) ) {
+				$this->disallowedProtocols[] = $protocol;
+			}
+		}
+
+		/**
+		 * Sets the list of disallowed protocols in S3 paths.
+		 *
+		 * This method updates the class's configuration with a new list of protocols that
+		 * should not be allowed in S3 paths (e.g., 'http://', 'ftp://'). It's used to prevent
+		 * security risks associated with unwanted protocols.
+		 *
+		 * @param array $disallowedProtocols An array of disallowed protocols.
+		 */
+		public function setDisallowedProtocols( array $disallowedProtocols ): void {
+			if ( ! empty( $disallowedProtocols ) ) {
+				$this->disallowedProtocols = $disallowedProtocols;
+			}
+		}
+
+		/** Main ******************************************************************/
+
 		/**
 		 * Generates a pre-signed S3 URL based on the provided arguments and settings.
 		 *
-		 * @param array $additional_args Additional arguments for the signer.
-		 *
 		 * @return string|null The pre-signed URL or null if not valid.
 		 */
-		public function get_signed_url( array $additional_args = [] ): ?string {
+		public function getSignedURL(): ?string {
 			try {
+
 				// Ensure settings arguments are available
-				if ( ! $this->settings_args ) {
+				if ( ! $this->settings ) {
 					return null;
 				}
 
-				// Parse the path to get bucket and object key
-				$default_bucket = $this->settings_args['default_bucket'] ?? '';
-
 				// Adjustments for parse_path
-				$parsed_path = parse_path(
-					$this->file_name,
-					$default_bucket,
-					$this->allowed_extensions,
-					$this->error_callback,
-					$this->disallowed_protocols
+				$path = parsePath(
+					$this->path,
+					$this->settings->defaultBucket ?? '',
+					$this->allowedExtensions,
+					$this->disallowedProtocols,
+					$this->errorCallback,
 				);
 
-				if ( ! $parsed_path ) {
+				if ( ! $path ) {
 					return null; // Path parsing failed
 				}
 
-				// Merge settings, parsed path, and additional arguments
-				$signer_args = array_merge( $this->settings_args, $parsed_path, $additional_args );
-
-				// Generate and return the pre-signed URL
-				return get_object_url( $signer_args, '', '', null, $this->error_callback );
+				return getObjectUrl(
+					$this->settings->accessKey,
+					$this->settings->secretKey,
+					$this->settings->endpoint,
+					$path->bucket,
+					$path->objectKey,
+					$this->settings->duration,
+					$this->settings->extraQueryString,
+					$this->settings->region,
+					$this->settings->usePathStyle,
+					$this->errorCallback
+				);
 			} catch ( Exception $e ) {
-				$this->handle_error( $e );
+				$this->handleError( $e );
 
 				return null;
 			}
 		}
+
+		/** Error Handling ********************************************************/
 
 		/**
 		 * Handles errors by invoking the error callback if available.
 		 *
 		 * @param Exception $e The exception to handle.
 		 */
-		private function handle_error( Exception $e ): void {
-			if ( is_callable( $this->error_callback ) ) {
-				call_user_func( $this->error_callback, $e );
+		private function handleError( Exception $e ): void {
+			if ( is_callable( $this->errorCallback ) ) {
+				call_user_func( $this->errorCallback, $e );
 			}
 		}
 	}

@@ -3,14 +3,16 @@
  * Handles the representation and manipulation of S3 regions.
  *
  * @package     ArrayPress/s3-providers
- * @copyright   Copyright (c) 2023, ArrayPress Limited
+ * @copyright   Copyright (c) 2024, ArrayPress Limited
  * @license     GPL2+
  * @since       1.0.0
  * @author      David Sherlock
  * @description Provides methods for fetching and interpreting information related to S3 regions.
  */
 
-namespace ArrayPress\Utils\S3;
+namespace ArrayPress\S3\Providers;
+
+use ArrayPress\S3\Sanitize;
 
 /**
  * Represents an S3 region and provides related utilities.
@@ -60,7 +62,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\Region' ) ) :
 		 *
 		 * @return string Region identifier.
 		 */
-		public function get_region(): string {
+		public function getRegion(): string {
 			return $this->region;
 		}
 
@@ -69,7 +71,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\Region' ) ) :
 		 *
 		 * @return string Continent name.
 		 */
-		public function get_continent(): string {
+		public function getContinent(): string {
 			return $this->continent;
 		}
 
@@ -78,7 +80,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\Region' ) ) :
 		 *
 		 * @return string Region label.
 		 */
-		public function get_label(): string {
+		public function getLabel(): string {
 			return $this->label;
 		}
 
@@ -87,7 +89,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\Region' ) ) :
 		 *
 		 * @return string Region label.
 		 */
-		public function is_auto(): string {
+		public function isAuto(): string {
 			return 'auto' === strtolower( $this->region );
 		}
 

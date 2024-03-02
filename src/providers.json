@@ -1,4 +1,5 @@
 {
+  "version": "1.0.0",
   "providers": {
     "linode": {
       "label": "Linode Object Storage",
@@ -82,6 +83,7 @@
         ]
       },
       "homepage": "https://www.linode.com/products/object-storage/",
+      "dashboard": "https://cloud.linode.com/object-storage/buckets",
       "defaultRegion": "us-east-1",
       "usePathStyle": true,
       "endpoint": "{region}.linodeobjects.com"
@@ -132,6 +134,7 @@
         ]
       },
       "homepage": "https://www.digitalocean.com/products/spaces/",
+      "dashboard": "https://cloud.digitalocean.com/login",
       "defaultRegion": "sfo3",
       "usePathStyle": false,
       "endpoint": "{region}.digitaloceanspaces.com"
@@ -280,6 +283,7 @@
         ]
       },
       "homepage": "https://aws.amazon.com/s3/",
+      "dashboard": "https://aws.amazon.com/s3/",
       "defaultRegion": "us-east-1",
       "usePathStyle": true,
       "endpoint": "s3.{region}.amazonaws.com"
@@ -318,6 +322,7 @@
         ]
       },
       "homepage": "https://www.backblaze.com/b2/",
+      "dashboard": "https://www.backblaze.com/b2/",
       "defaultRegion": "us-west-004",
       "usePathStyle": false,
       "endpoint": "s3.{region}.backblazeb2.com"
@@ -386,6 +391,7 @@
         ]
       },
       "homepage": "https://wasabi.com/",
+      "dashboard": "https://console.wasabisys.com/login",
       "defaultRegion": "us-east-1",
       "usePathStyle": false,
       "endpoint": "s3.{region}.wasabisys.com"
@@ -426,6 +432,7 @@
         ]
       },
       "homepage": "https://www.vultr.com/products/object-storage/",
+      "dashboard": "https://my.vultr.com/",
       "defaultRegion": "ewr1",
       "usePathStyle": true,
       "endpoint": "{region}.vultrobjects.com"
@@ -442,6 +449,7 @@
         ]
       },
       "homepage": "https://www.cloudflare.com/products/r2/",
+      "dashboard": "https://dash.cloudflare.com/",
       "defaultRegion": "auto",
       "usePathStyle": true,
       "endpoint": "{account_id}.r2.cloudflarestorage.com"
@@ -458,6 +466,7 @@
         ]
       },
       "homepage": "https://www.arraypress.com",
+      "dashboard": "https://www.arraypress.com",
       "defaultRegion": "custom",
       "usePathStyle": true,
       "endpoint": "example.com"

@@ -19,7 +19,7 @@
  * $checksum = Loader::get_checksum('path/to/providers.json');
  *
  * @package     ArrayPress/s3-providers
- * @copyright   Copyright (c) 2023, ArrayPress Limited
+ * @copyright   Copyright (c) 2024, ArrayPress Limited
  * @license     GPL2+
  * @since       1.0.0
  * @author      David Sherlock
@@ -27,7 +27,7 @@
  *              JSON sources.
  */
 
-namespace ArrayPress\Utils\S3;
+namespace ArrayPress\S3\Providers;
 
 use Exception;
 
@@ -45,93 +45,167 @@ if ( ! class_exists( __NAMESPACE__ . '\\Loader' ) ) :
 		 *
 		 * @var string|null
 		 */
-		private static ?string $cached_checksum = null;
+		private static ?string $cachedChecksum = null;
 
 		/**
-		 * Load providers from a JSON file.
+		 * The cached SHA256 checksum of the loaded file.
 		 *
-		 * @param string|null $json_path Path to the JSON file containing providers.
-		 *
-		 * @return array An associative array of provider data.
-		 * @throws Exception If JSON file does not exist or has invalid data.
+		 * @var string|null
 		 */
-		public static function load( string $json_path = null ): array {
-			$json_data = self::load_json_file( $json_path );
+		private static ?string $jsonVersion = null; // To store the version of the loaded JSON file
 
-			return self::validate_json( $json_data );
+		/**
+		 * Load providers and metadata from a JSON file, including version information.
+		 *
+		 * This method reads a specified JSON file, validates its structure, and returns the provider data
+		 * along with metadata such as the file version. It's designed to ensure both the integrity and
+		 * authenticity of the data, facilitating version management and update checks. If the JSON file
+		 * contains a 'version' key, it is stored for potential comparisons to determine if the loaded data
+		 * is up-to-date. This method is integral for applications that rely on external JSON data sources
+		 * for configuration or operational data.
+		 *
+		 * @param string|null $jsonPath Path to the JSON file containing providers and optional version information.
+		 *
+		 * @return object An object containing the provider data under 'providers' key and possibly a 'version' key
+		 *                for the data version. The structure is validated to ensure it contains at least the 'providers'
+		 *                key with valid data.
+		 * @throws Exception If the JSON file does not exist, cannot be read, or contains invalid or improperly
+		 *                   structured JSON data. Also throws if the 'providers' key is missing or empty, or if
+		 *                   the 'version' key is missing in cases where version control is expected.
+		 *
+		 * Usage Example:
+		 * ```php
+		 * try {
+		 *     $providersData = Loader::load('path/to/providers.json');
+		 *     echo "Providers loaded successfully.";
+		 *     if (Loader::isVersionNewer('1.0.1')) {
+		 *         echo "Loaded data is newer than version 1.0.1.";
+		 *     }
+		 * } catch (Exception $e) {
+		 *     echo "Error loading providers: " . $e->getMessage();
+		 * }
+		 * ```
+		 *
+		 * Note: Ensure the JSON file is correctly formatted and includes the necessary keys ('providers',
+		 * optionally 'version') to avoid exceptions.
+		 */
+		public static function load( string $jsonPath = null ): ?object {
+			$jsonData    = self::loadJsonFile( $jsonPath );
+			$decodedData = self::validateJson( $jsonData );
+
+			// Store the version for later comparison, if available
+			self::$jsonVersion = $decodedData->version ?? null;
+
+			return $decodedData->providers;
 		}
 
 		/**
 		 * Load the content of the provided JSON file.
 		 *
-		 * @param string|null $json_path Path to the JSON file.
+		 * @param string|null $jsonPath Path to the JSON file.
 		 *
 		 * @return string Content of the JSON file.
 		 * @throws Exception If JSON file does not exist.
 		 */
-		private static function load_json_file( string $json_path = null ): string {
-			$json_file = self::resolve_file_path( $json_path );
+		private static function loadJsonFile( string $jsonPath = null ): string {
+			$jsonFile = self::resolveFilePath( $jsonPath );
 
-			return file_get_contents( $json_file );
+			return file_get_contents( $jsonFile );
 		}
 
 		/**
 		 * Resolve the path to the JSON file and check its existence.
 		 *
-		 * @param string|null $json_path Path to the JSON file.
+		 * @param string|null $jsonPath Path to the JSON file.
 		 *
 		 * @return string The resolved file path.
 		 * @throws Exception If the file does not exist.
 		 */
-		private static function resolve_file_path( string $json_path = null ): string {
-			$json_file = $json_path ?: __DIR__ . '/providers.json';
+		private static function resolveFilePath( string $jsonPath = null ): string {
+			$jsonFile = $jsonPath ?: __DIR__ . '/providers.json';
 
-			if ( ! file_exists( $json_file ) ) {
-				throw new Exception( "The JSON file '{$json_file}' does not exist." );
+			if ( ! file_exists( $jsonFile ) ) {
+				throw new Exception( "The JSON file '{$jsonFile}' does not exist." );
 			}
 
-			return $json_file;
+			return $jsonFile;
 		}
 
 		/**
 		 * Decode the provided JSON data string and validate its structure.
 		 *
-		 * @param string $json_data JSON data as string.
+		 * @param string $jsonData JSON data as string.
 		 *
-		 * @return array Decoded and validated JSON data.
+		 * @return object Decoded and validated JSON data.
 		 * @throws Exception If JSON format is invalid or structure is not as expected.
 		 */
-		private static function validate_json( string $json_data ): array {
-			$data = json_decode( $json_data, true );
+		private static function validateJson( string $jsonData ): object {
+			$data = json_decode( $jsonData, false );
 
 			if ( json_last_error() !== JSON_ERROR_NONE ) {
 				throw new Exception( 'Invalid JSON format.' );
 			}
 
-			if ( ! is_array( $data['providers'] ) || empty( $data['providers'] ) ) {
-				throw new Exception( "The JSON data either does not contain the 'providers' key or it's not a valid array or it's empty." );
+			if ( empty( $data->providers ) ) {
+				throw new Exception( "The JSON data either does not contain the 'providers' key or it's not a valid object or it's empty." );
 			}
 
-			return $data['providers'];
+			// Check if the 'version' key exists
+			if ( empty( $data->version ) ) {
+				throw new Exception( "The JSON data does not contain a 'version' key." );
+			}
+
+			return $data;
+		}
+
+		/**
+		 * Compares the loaded JSON version against a specified version string to determine if the loaded version is newer.
+		 *
+		 * This method is crucial for version management, allowing the application to check if an update or a more
+		 * recent version of the JSON data is available. It leverages the PHP `version_compare` function to
+		 * accurately compare semantic versioning strings. Before invoking this method, ensure that a JSON file has been
+		 * successfully loaded and validated using `load` to set the `jsonVersion` property.
+		 *
+		 * @param string $otherVersion The version string to compare against the loaded JSON version.
+		 *
+		 * @return bool Returns true if the loaded JSON version is newer than the specified version string, false otherwise.
+		 * @throws Exception If no JSON version has been loaded before calling this method, indicating that a JSON file
+		 *                   needs to be loaded and validated to set the `jsonVersion` property.
+		 *
+		 * Example Usage:
+		 * ```php
+		 * if ( Loader::isVersionNewer( '2.0.0' ) ) {
+		 *     echo "A newer version of the JSON data is loaded.";
+		 * } else {
+		 *     echo "The loaded JSON version is not newer than '2.0.0'.";
+		 * }
+		 * ```
+		 */
+		public static function isVersionNewer( string $otherVersion ): bool {
+			if ( self::$jsonVersion === null ) {
+				throw new Exception( "No JSON version loaded. Please load a JSON file first." );
+			}
+
+			return version_compare( self::$jsonVersion, $otherVersion, '>' );
 		}
 
 		/**
 		 * Calculate the SHA256 checksum of the file.
 		 *
-		 * @param string|null $json_path Path to the JSON file.
+		 * @param string|null $jsonPath Path to the JSON file.
 		 *
 		 * @return string SHA256 checksum.
 		 * @throws Exception If the file does not exist.
 		 */
-		public static function get_checksum( string $json_path = null ): string {
-			if ( self::$cached_checksum ) {
-				return self::$cached_checksum;
+		public static function getChecksum( string $jsonPath = null ): string {
+			if ( self::$cachedChecksum ) {
+				return self::$cachedChecksum;
 			}
 
-			$json_file             = self::resolve_file_path( $json_path );
-			self::$cached_checksum = hash_file( 'sha256', $json_file );
+			$jsonFile             = self::resolveFilePath( $jsonPath );
+			self::$cachedChecksum = hash_file( 'sha256', $jsonFile );
 
-			return self::$cached_checksum;
+			return self::$cachedChecksum;
 		}
 
 	}

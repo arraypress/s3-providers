@@ -9,17 +9,18 @@
  * providers, regions, custom endpoints, and more. It also provides a convenient way to retrieve arguments for signing
  * classes used in S3 pre-signing operations.
  *
- * @package     ArrayPress/Utils/S3
- * @copyright   Copyright (c) 2023, ArrayPress Limited
+ * @package     ArrayPress/s3-providers
+ * @copyright   Copyright (c) 2024, ArrayPress Limited
  * @license     GPL2+
  * @since       1.0.0
  * @author      David Sherlock
  */
 
-namespace ArrayPress\Utils\S3;
+namespace ArrayPress\S3\Providers;
 
-use InvalidArgumentException;
 use Exception;
+use InvalidArgumentException;
+use function ArrayPress\S3\validate;
 
 /**
  * S3 Settings Validator Class
@@ -37,6 +38,8 @@ if ( ! class_exists( __NAMESPACE__ . '\\Settings' ) ) :
 	 * Manages the validation and configuration of settings related to Amazon S3 storage and pre-signing options.
 	 */
 	class Settings {
+
+		/** Options ***************************************************************/
 
 		/**
 		 * @var string Access Key ID
@@ -93,24 +96,26 @@ if ( ! class_exists( __NAMESPACE__ . '\\Settings' ) ) :
 		 */
 		private string $extra_query_string;
 
+		/** Private ***************************************************************/
+
 		/**
 		 * @var Provider Provider object
 		 */
-		private Provider $provider_obj;
+		private Provider $providerObj;
 
 		/**
 		 * Constructor for the Validator class.
 		 *
 		 * Initializes an instance of the Validator class with options retrieved using a specified getter function.
 		 *
-		 * @param string      $options_getter The getter function to retrieve option values (defaults to 'get_option').
-		 * @param string|null $option_prefix  An optional prefix for option keys.
+		 * @param string      $optionsGetter The getter function to retrieve option values (defaults to 'get_option').
+		 * @param string|null $optionPrefix  An optional prefix for option keys.
 		 *
 		 * @throws InvalidArgumentException If the options getter function is empty.
 		 * @throws Exception If an error occurs while retrieving an option.
 		 */
-		public function __construct( string $options_getter = 'get_option', string $option_prefix = null ) {
-			if ( empty( $options_getter ) ) {
+		public function __construct( string $optionsGetter = 'get_option', string $optionPrefix = null ) {
+			if ( empty( $optionsGetter ) ) {
 				throw new InvalidArgumentException( 'Options getter function cannot be empty.' );
 			}
 
@@ -131,50 +136,27 @@ if ( ! class_exists( __NAMESPACE__ . '\\Settings' ) ) :
 			// Iterate over the defaults array and map options to class variables
 			foreach ( $options as $key => $default ) {
 				// Build the option key with the prefix (if set)
-				$option_key = $option_prefix ? $option_prefix . '_' . $key : $key;
+				$optionKey = $optionPrefix ? $optionPrefix . '_' . $key : $key;
 
 				// Check if the option is defined in wp-config.php
-				if ( defined( $option_key ) ) {
-					$option_value = constant( $option_key );
+				if ( defined( $optionKey ) ) {
+					$optionValue = constant( $optionKey );
 				} else {
 					try {
 						// Use the callback to retrieve the option value
-						$option_value = call_user_func( $options_getter, $option_key );
+						$optionValue = call_user_func( $optionsGetter, $optionKey );
 					} catch ( Exception $e ) {
-						throw new Exception( "Error retrieving option '$option_key': " . $e->getMessage() );
+						throw new Exception( "Error retrieving option '$optionKey': " . $e->getMessage() );
 					}
 				}
 
 				// Use a ternary expression to handle string trimming and default values
-				$this->{$key} = is_string( $option_value ) ? trim( $option_value ) : ( $option_value ?? $default );
+				$this->{$key} = is_string( $optionValue ) && ! empty( $optionValue ) ? trim( $optionValue ) : ( $optionValue ?? $default );
 			}
 
+			$this->validateOptions();
 
-			$this->validate_options();
-
-			$this->setup_custom_properties();
-
-		}
-
-		/**
-		 * Set up custom properties based on the storage provider's requirements.
-		 *
-		 * This method initializes custom properties based on the chosen storage provider's configuration. It sets the
-		 * `$provider_obj` property to the storage provider instance, and it may modify the `$region` and `$is_path_style`
-		 * properties depending on the provider's requirements.
-		 *
-		 * If the provider requires a custom endpoint and the custom region is not empty, this method sets the `$region` property
-		 * to the lowercase value of the custom region. Otherwise, it sets the `$is_path_style` property based on the provider's
-		 * path style configuration.
-		 */
-		protected function setup_custom_properties() {
-			$this->provider_obj = get_provider( $this->provider );
-
-			if ( $this->provider_obj->requires_custom_endpoint() && ! empty( $this->custom_region ) ) {
-				$this->region = strtolower( $this->custom_region );
-			} else {
-				$this->use_path_style = $this->provider_obj->use_path_style();
-			}
+			$this->setupCustomProperties();
 		}
 
 		/**
@@ -182,7 +164,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\Settings' ) ) :
 		 *
 		 * @throws Exception If any required options are missing or invalid.
 		 */
-		protected function validate_options() {
+		protected function validateOptions() {
 			if ( empty( $this->access_key ) ) {
 				throw new Exception( "Access Key is required and cannot be empty." );
 			}
@@ -192,54 +174,80 @@ if ( ! class_exists( __NAMESPACE__ . '\\Settings' ) ) :
 			}
 
 			if ( empty( $this->provider ) ) {
-				throw new Exception( "Storage Provider is required and cannot be empty." );
+				throw new Exception( "Provider is required and cannot be empty." );
 			}
 
 			// Check if the specified storage provider exists
-			$provider = get_provider( $this->provider );
+			$provider = getProvider( $this->provider );
 			if ( empty( $provider ) ) {
-				throw new Exception( "Invalid Storage Provider specified." );
+				throw new Exception( "Invalid provider specified." );
 			}
 
 			// Check if the storage provider requires an account ID and if it's provided
-			if ( $provider->requires_account_id() && empty( $this->account_id ) ) {
-				throw new Exception( "Account ID is required for this Storage Provider." );
+			if ( $provider->requiresAccountId() && empty( $this->account_id ) ) {
+				throw new Exception( "Account ID is required for this provider." );
 			}
 
-			if ( $provider->requires_custom_endpoint() ) {
+			if ( $provider->requiresCustomEndpoint() ) {
+
 				// Check if a custom endpoint and custom region are provided and valid
-				if ( empty( $this->custom_endpoint ) || ! Validate::is_valid( $this->custom_endpoint, 'endpoint' ) ) {
-					throw new Exception( "Custom Endpoint is required and must be a valid URL for this Storage Provider." );
+				if ( empty( $this->custom_endpoint ) || ! validate( 'endpoint', $this->custom_endpoint ) ) {
+					throw new Exception( "Custom Endpoint is required and must be a valid URL for this provider." );
 				}
 
-				if ( empty( $this->custom_region ) || ! Validate::is_valid( $this->custom_region, 'region' ) ) {
-					throw new Exception( "Custom Region is required and must be a valid region for this Storage Provider." );
+				if ( empty( $this->custom_region ) || ! validate( 'region', $this->custom_region ) ) {
+					throw new Exception( "Custom Region is required and must be a valid region for this provider." );
 				}
+
 			} else {
+
 				// If not a custom endpoint, use the default region from the provider
 				if ( empty( $this->region ) ) {
-					$this->region = $provider->get_default_region();
+					$this->region = $provider->getDefaultRegion();
 				}
 
 				// Check if the specified region is valid for the provider
-				if ( ! $provider->region_exists( $this->region ) ) {
-					throw new Exception( "Region is required and must be a valid region for this Storage Provider." );
+				if ( ! $provider->regionExists( $this->region ) ) {
+					throw new Exception( "Region is required and must be a valid region for this provider." );
 				}
+
 			}
 
 			// Check if a default bucket is provided and if it's valid
-			if ( ! empty( $this->default_bucket ) && ! Validate::is_valid( $this->default_bucket, 'bucket' ) ) {
+			if ( ! empty( $this->default_bucket ) && ! validate( 'bucket', $this->default_bucket ) ) {
 				throw new Exception( "Invalid Default Bucket specified." );
 			}
 
 			// Check if the specified period is a positive integer
-			if ( ! Validate::is_valid( $this->duration, 'duration' ) ) {
-				throw new Exception( "Period must be a positive integer." );
+			if ( ! validate( 'duration', $this->duration ) ) {
+				throw new Exception( "Invalid Duration specified." );
 			}
 
 			// Check if the extra query string, if provided, is valid
-			if ( ! empty( $this->extra_query_string ) && ! Validate::is_valid( $this->extra_query_string, 'extra_query_string' ) ) {
+			if ( ! empty( $this->extra_query_string ) && ! validate( 'extra_query_string', $this->extra_query_string ) ) {
 				throw new Exception( "Invalid extra query string specified." );
+			}
+		}
+
+		/**
+		 * Set up custom properties based on the storage provider's requirements.
+		 *
+		 * This method initializes custom properties based on the chosen storage provider's configuration. It sets the
+		 * `$providerObj` property to the storage provider instance, and it may modify the `$region` and `$is_path_style`
+		 * properties depending on the provider's requirements.
+		 *
+		 * If the provider requires a custom endpoint and the custom region is not empty, this method sets the `$region` property
+		 * to the lowercase value of the custom region. Otherwise, it sets the `$is_path_style` property based on the provider's
+		 * path style configuration.
+		 * @throws Exception
+		 */
+		protected function setupCustomProperties() {
+			$this->providerObj = getProvider( $this->provider );
+
+			if ( $this->providerObj->requiresCustomEndpoint() && ! empty( $this->custom_region ) ) {
+				$this->region = strtolower( $this->custom_region );
+			} else {
+				$this->use_path_style = $this->providerObj->usePathStyle();
 			}
 		}
 
@@ -248,8 +256,8 @@ if ( ! class_exists( __NAMESPACE__ . '\\Settings' ) ) :
 		 *
 		 * @return bool True if the credentials are valid, otherwise false.
 		 */
-		public function has_credentials(): bool {
-			if ( $this->provider_obj->requires_account_id() ) {
+		public function hasCredentials(): bool {
+			if ( $this->providerObj->requiresAccountId() ) {
 				return ! empty( $this->account_id ) && ! empty( $this->access_key ) && ! empty( $this->secret_key );
 			} else {
 				return ! empty( $this->access_key ) && ! empty( $this->secret_key );
@@ -257,26 +265,22 @@ if ( ! class_exists( __NAMESPACE__ . '\\Settings' ) ) :
 		}
 
 		/**
-		 * Get the arguments for the signing class.
+		 * Get the properties for the signing class.
 		 *
-		 * @param array $args Additional arguments to merge with the defaults.
-		 *
-		 * @return array An array of signing class arguments.
+		 * @return object An object of signing class properties.
 		 * @throws Exception
 		 */
-		public function get_signer_args( array $args = [] ): array {
-			return array_merge(
-				[
-					'access_key'         => $this->access_key,
-					'secret_key'         => $this->secret_key,
-					'endpoint'           => $this->get_endpoint(),
-					'region'             => $this->region,
-					'use_path_style'     => $this->use_path_style,
-					'extra_query_string' => $this->extra_query_string,
-					'duration'           => $this->duration
-				],
-				$args
-			);
+		public function getSignerProperties(): object {
+			return (object) [
+				'accessKey'        => $this->access_key,
+				'secretKey'        => $this->secret_key,
+				'endpoint'         => $this->getEndpoint(), // Assuming getEndpoint() is a method.
+				'region'           => $this->region,
+				'usePathStyle'     => $this->use_path_style,
+				'extraQueryString' => $this->extra_query_string,
+				'duration'         => $this->duration,
+				'defaultBucket'    => $this->default_bucket
+			];
 		}
 
 		/**
@@ -289,8 +293,8 @@ if ( ! class_exists( __NAMESPACE__ . '\\Settings' ) ) :
 		 * @return string The endpoint URL for the current storage configuration.
 		 * @throws Exception
 		 */
-		protected function get_endpoint(): string {
-			return get_endpoint( $this->provider, $this->region, $this->account_id, $this->custom_endpoint );
+		protected function getEndpoint(): string {
+			return getEndpoint( $this->provider, $this->region, $this->account_id, $this->custom_endpoint );
 		}
 
 	}

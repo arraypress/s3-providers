@@ -17,42 +17,44 @@
  * Note: These functions check for the existence of the Providers class to prevent redefinition.
  *
  * @package     ArrayPress/s3-providers
- * @copyright   Copyright (c) 2023, ArrayPress Limited
+ * @copyright   Copyright (c) 2024, ArrayPress Limited
  * @license     GPL2+
  * @since       1.0.0
  * @author      David Sherlock
  */
 
-namespace ArrayPress\Utils\S3;
+declare( strict_types=1 );
+
+namespace ArrayPress\S3\Providers;
 
 use Exception;
 
 /** Providers *************************************************************/
 
-if ( ! function_exists( 'get_providers' ) ) {
+if ( ! function_exists( 'getProviders' ) ) {
 	/**
 	 * Retrieves providers or handles errors gracefully if exceptions occur.
 	 *
-	 * @param string|array|null $input          Either a path to the JSON file containing providers or an array of providers data. If null, it will be loaded from the default JSON file.
-	 * @param string            $context        Describes how the providers are being retrieved, useful for filtering by specific plugins that use the library.
-	 * @param callable|null     $error_callback Callback function for error handling.
+	 * @param string|array|null $input         Either a path to the JSON file containing providers or an array of providers data. If null, it will be loaded from the default JSON file.
+	 * @param string            $context       Describes how the providers are being retrieved, useful for filtering by specific plugins that use the library.
+	 * @param callable|null     $errorCallback Callback function for error handling.
 	 *
 	 * @return Provider[]|null An array of Provider objects or null on failure.
 	 *
 	 * @throws Exception If an exception occurs while retrieving the providers.
 	 */
-	function get_providers(
+	function getProviders(
 		$input = null,
 		string $context = '',
-		?callable $error_callback = null
+		?callable $errorCallback = null
 	): ?array {
 		try {
-			$providers = new Providers( $input, $context );
+			$registry = new Registry( $input, $context );
 
-			return $providers->get_providers();
+			return $registry->getProviders();
 		} catch ( Exception $e ) {
-			if ( is_callable( $error_callback ) ) {
-				call_user_func( $error_callback, $e );
+			if ( is_callable( $errorCallback ) ) {
+				call_user_func( $errorCallback, $e );
 			}
 
 			// Handle the exception or log it if needed
@@ -61,149 +63,7 @@ if ( ! function_exists( 'get_providers' ) ) {
 	}
 }
 
-if ( ! function_exists( 'get_provider' ) ) {
-	/**
-	 * Retrieves a specific provider by its key or handles errors gracefully if exceptions occur.
-	 *
-	 * @param string            $provider_key   Provider key.
-	 * @param string|array|null $input          Either a path to the JSON file containing providers or an array of providers data. If null, it will be loaded from the default JSON file.
-	 * @param string            $context        Describes how the region options are being retrieved, useful for filtering by specific plugins that use the library.
-	 * @param callable|null     $error_callback Callback function for error handling.
-	 *
-	 * @return Provider|null The Provider object or null on failure.
-	 *
-	 * @throws Exception If an exception occurs while retrieving the provider.
-	 */
-	function get_provider(
-		string $provider_key,
-		$input = null,
-		string $context = '',
-		?callable $error_callback = null
-	): ?Provider {
-		try {
-			$providers = new Providers( $input, $context );
-
-			return $providers->get_provider( $provider_key );
-		} catch ( Exception $e ) {
-			if ( is_callable( $error_callback ) ) {
-				call_user_func( $error_callback, $e );
-			}
-
-			// Handle the exception or log it if needed
-			return null; // Return null on failure
-		}
-	}
-}
-
-if ( ! function_exists( 'get_provider_default_region' ) ) {
-	/**
-	 * Retrieves the default region for a provider or handles errors gracefully if exceptions occur.
-	 *
-	 * @param string            $provider_key   The provider key.
-	 * @param string|array|null $input          Either a path to the JSON file containing provider data or an array of provider data. If null, it will be loaded from the default JSON file.
-	 * @param string            $context        Describes how the region options are being retrieved, useful for filtering by specific plugins that use the library.
-	 * @param callable|null     $error_callback Callback function for error handling.
-	 *
-	 * @return string|null The default region string or null on failure.
-	 *
-	 * @throws Exception If an exception occurs while retrieving the region.
-	 */
-	function get_provider_default_region(
-		string $provider_key,
-		$input = null,
-		string $context = '',
-		?callable $error_callback = null
-	): ?string {
-		try {
-			$providers = new Providers( $input, $context );
-
-			return $providers->get_default_region( $provider_key );
-		} catch ( Exception $e ) {
-			if ( is_callable( $error_callback ) ) {
-				call_user_func( $error_callback, $e );
-			}
-
-			// Handle the exception or log it if needed
-			return null; // Return null on failure
-		}
-	}
-}
-
-/** Regions ***************************************************************/
-
-if ( ! function_exists( 'get_regions' ) ) {
-	/**
-	 * Retrieves providers or handles errors gracefully if exceptions occur.
-	 *
-	 * @param string            $provider_key   Provider key.
-	 * @param string|array|null $input          Either a path to the JSON file containing providers or an array of providers data. If null, it will be loaded from the default JSON file.
-	 * @param string            $context        Describes how the providers are being retrieved, useful for filtering by specific plugins that use the library.
-	 * @param callable|null     $error_callback Callback function for error handling.
-	 *
-	 * @return Provider[]|null An array of Provider objects or null on failure.
-	 *
-	 * @throws Exception If an exception occurs while retrieving the providers.
-	 */
-	function get_regions(
-		string $provider_key,
-		$input = null,
-		string $context = '',
-		?callable $error_callback = null
-	): ?array {
-		try {
-			$providers = new Providers( $input, $context );
-
-			return $providers->get_regions( $provider_key );
-		} catch ( Exception $e ) {
-			if ( is_callable( $error_callback ) ) {
-				call_user_func( $error_callback, $e );
-			}
-
-			// Handle the exception or log it if needed
-			return null; // Return null on failure
-		}
-	}
-}
-
-if ( ! function_exists( 'get_region' ) ) {
-	/**
-	 * Retrieves a specific region for a provider or handles errors gracefully if exceptions occur.
-	 *
-	 * @param string            $provider_key   Provider key.
-	 * @param string            $region_key     Region key.
-	 * @param string|array|null $input          Either a path to the JSON file containing providers or an array of providers data. If null, it will be loaded from the default JSON file.
-	 * @param string            $context        Describes how the region options are being retrieved, useful for filtering by specific plugins that use the library.
-	 * @param callable|null     $error_callback Callback function for error handling.
-	 *
-	 * @return Region|null The Region object or null on failure.
-	 *
-	 * @throws Exception If an exception occurs while retrieving the region.
-	 */
-	function get_region(
-		string $provider_key,
-		string $region_key,
-		$input = null,
-		string $context = '',
-		?callable $error_callback = null
-	): ?Region {
-		try {
-			$providers = new Providers( $input, $context );
-
-			return $providers->get_region( $provider_key, $region_key );
-		} catch ( Exception $e ) {
-			if ( is_callable( $error_callback ) ) {
-				call_user_func( $error_callback, $e );
-			}
-
-			// Handle the exception or log it if needed
-			return null; // Return null on failure
-		}
-	}
-}
-
-/** Options ***************************************************************/
-
-if ( ! function_exists( 'get_provider_options' ) ) {
+if ( ! function_exists( 'getProviderOptions' ) ) {
 	/**
 	 * Retrieves provider options or handles errors gracefully if exceptions occur.
 	 *
@@ -214,26 +74,26 @@ if ( ! function_exists( 'get_provider_options' ) ) {
 	 *                                          If null, it will be loaded from the default JSON file.
 	 * @param string            $context        Describes how the providers are being called, useful for filtering by specific
 	 *                                          plugins that use the library.
-	 * @param string            $empty_label    The label for an empty option (default is empty).
-	 * @param callable|null     $error_callback Callback function for error handling.
+	 * @param string            $emptyLabel     The label for an empty option (default is empty).
+	 * @param callable|null     $errorCallback  Callback function for error handling.
 	 *
 	 * @return array|false An associative array with 'bucket' and 'object' keys or false on failure.
 	 *
 	 * @throws Exception If an exception occurs while retrieving provider options.
 	 */
-	function get_provider_options(
+	function getProviderOptions(
 		$input = null,
 		string $context = '',
-		string $empty_label = '',
-		?callable $error_callback = null
+		string $emptyLabel = '',
+		?callable $errorCallback = null
 	) {
 		try {
-			$providers = new Providers( $input, $context );
+			$registry = new Registry( $input, $context );
 
-			return $providers->get_provider_options( $empty_label );
+			return $registry->getProviderOptions( $emptyLabel );
 		} catch ( Exception $e ) {
-			if ( is_callable( $error_callback ) ) {
-				call_user_func( $error_callback, $e );
+			if ( is_callable( $errorCallback ) ) {
+				call_user_func( $errorCallback, $e );
 			}
 
 			// Handle the exception here (e.g., log it or return a default value)
@@ -242,83 +102,223 @@ if ( ! function_exists( 'get_provider_options' ) ) {
 	}
 }
 
-if ( ! function_exists( 'get_region_options' ) ) {
+if ( ! function_exists( 'getProvider' ) ) {
+	/**
+	 * Retrieves a specific provider by its key or handles errors gracefully if exceptions occur.
+	 *
+	 * @param string            $providerKey   Provider key.
+	 * @param string|array|null $input         Either a path to the JSON file containing providers or an array of providers data. If null, it will be loaded from the default JSON file.
+	 * @param string            $context       Describes how the region options are being retrieved, useful for filtering by specific plugins that use the library.
+	 * @param callable|null     $errorCallback Callback function for error handling.
+	 *
+	 * @return Provider|null The Provider object or null on failure.
+	 *
+	 * @throws Exception If an exception occurs while retrieving the provider.
+	 */
+	function getProvider(
+		string $providerKey,
+		$input = null,
+		string $context = '',
+		?callable $errorCallback = null
+	): ?Provider {
+		try {
+			$registry = new Registry( $input, $context );
+
+			return $registry->getProvider( $providerKey );
+		} catch ( Exception $e ) {
+			if ( is_callable( $errorCallback ) ) {
+				call_user_func( $errorCallback, $e );
+			}
+
+			// Handle the exception or log it if needed
+			return null; // Return null on failure
+		}
+	}
+}
+
+if ( ! function_exists( 'getProviderDefaultRegion' ) ) {
+	/**
+	 * Retrieves the default region for a provider or handles errors gracefully if exceptions occur.
+	 *
+	 * @param string            $providerKey   The provider key.
+	 * @param string|array|null $input         Either a path to the JSON file containing provider data or an array of provider data. If null, it will be loaded from the default JSON file.
+	 * @param string            $context       Describes how the region options are being retrieved, useful for filtering by specific plugins that use the library.
+	 * @param callable|null     $errorCallback Callback function for error handling.
+	 *
+	 * @return string|null The default region string or null on failure.
+	 *
+	 * @throws Exception If an exception occurs while retrieving the region.
+	 */
+	function getProviderDefaultRegion(
+		string $providerKey,
+		$input = null,
+		string $context = '',
+		?callable $errorCallback = null
+	): ?string {
+		try {
+			$registry = new Registry( $input, $context );
+
+			return $registry->getDefaultRegion( $providerKey );
+		} catch ( Exception $e ) {
+			if ( is_callable( $errorCallback ) ) {
+				call_user_func( $errorCallback, $e );
+			}
+
+			// Handle the exception or log it if needed
+			return null; // Return null on failure
+		}
+	}
+}
+
+/** Regions ***************************************************************/
+
+if ( ! function_exists( 'getRegions' ) ) {
+	/**
+	 * Retrieves providers or handles errors gracefully if exceptions occur.
+	 *
+	 * @param string            $providerKey   Provider key.
+	 * @param string|array|null $input         Either a path to the JSON file containing providers or an array of providers data. If null, it will be loaded from the default JSON file.
+	 * @param string            $context       Describes how the providers are being retrieved, useful for filtering by specific plugins that use the library.
+	 * @param callable|null     $errorCallback Callback function for error handling.
+	 *
+	 * @return Provider[]|null An array of Provider objects or null on failure.
+	 *
+	 * @throws Exception If an exception occurs while retrieving the providers.
+	 */
+	function getRegions(
+		string $providerKey,
+		$input = null,
+		string $context = '',
+		?callable $errorCallback = null
+	): ?array {
+		try {
+			$registry = new Registry( $input, $context );
+
+			return $registry->getRegions( $providerKey );
+		} catch ( Exception $e ) {
+			if ( is_callable( $errorCallback ) ) {
+				call_user_func( $errorCallback, $e );
+			}
+
+			// Handle the exception or log it if needed
+			return null; // Return null on failure
+		}
+	}
+}
+
+if ( ! function_exists( 'getRegionOptions' ) ) {
 	/**
 	 * Retrieves region options for a specific provider or handles errors gracefully if exceptions occur.
 	 *
-	 * @param string            $provider_key   Provider key. If empty or invalid, the first provider key will be used.
-	 * @param string            $empty_label    Label for an empty option (default is empty).
-	 * @param string|array|null $input          Either a path to the JSON file containing providers or an array of providers data. If null, it will be loaded from the default JSON file.
-	 * @param string            $context        Describes how the region options are being retrieved, useful for filtering by specific plugins that use the library.
-	 * @param callable|null     $error_callback Callback function for error handling.
+	 * @param string            $providerKey   Provider key. If empty or invalid, the first provider key will be used.
+	 * @param string            $emptyLabel    Label for an empty option (default is empty).
+	 * @param string|array|null $input         Either a path to the JSON file containing providers or an array of providers data. If null, it will be loaded from the default JSON file.
+	 * @param string            $context       Describes how the region options are being retrieved, useful for filtering by specific plugins that use the library.
+	 * @param callable|null     $errorCallback Callback function for error handling.
 	 *
 	 * @return array An associative array of region options.
 	 *
 	 * @throws Exception If an exception occurs while retrieving region options.
 	 */
-	function get_region_options(
-		string $provider_key = '',
-		string $empty_label = '',
+	function getRegionOptions(
+		string $providerKey = '',
+		string $emptyLabel = '',
 		$input = null,
 		string $context = '',
-		?callable $error_callback = null
+		?callable $errorCallback = null
 	): array {
 		try {
-			$providers          = new Providers( $input, $context );
-			$first_provider_key = $providers->get_first_provider_key();
+			$registry           = new Registry( $input, $context );
+			$first_provider_key = $registry->getFirstProviderKey();
 
-			if ( empty( $first_provider_key ) || ( ! empty( $provider_key ) && ! $providers->provider_exists( $provider_key ) ) ) {
+			if ( empty( $first_provider_key ) || ( ! empty( $providerKey ) && ! $registry->providerExists( $providerKey ) ) ) {
 				throw new Exception( "Invalid provider key or no providers available." );
 			}
 
-			$provider_key = ! empty( $provider_key ) ? $provider_key : $first_provider_key;
+			$providerKey = ! empty( $providerKey ) ? $providerKey : $first_provider_key;
 
-			return $providers->get_region_options( $provider_key, $empty_label );
+			return $registry->getRegionOptions( $providerKey, $emptyLabel );
 		} catch ( Exception $e ) {
-			if ( is_callable( $error_callback ) ) {
-				call_user_func( $error_callback, $e );
+			if ( is_callable( $errorCallback ) ) {
+				call_user_func( $errorCallback, $e );
 			}
 
 			// Handle the exception here (e.g., log it or return a default value)
 			return array(); // Return an empty array as a fallback
+		}
+	}
+}
+
+if ( ! function_exists( 'getRegion' ) ) {
+	/**
+	 * Retrieves a specific region for a provider or handles errors gracefully if exceptions occur.
+	 *
+	 * @param string            $providerKey   Provider key.
+	 * @param string            $regionKey     Region key.
+	 * @param string|array|null $input         Either a path to the JSON file containing providers or an array of providers data. If null, it will be loaded from the default JSON file.
+	 * @param string            $context       Describes how the region options are being retrieved, useful for filtering by specific plugins that use the library.
+	 * @param callable|null     $errorCallback Callback function for error handling.
+	 *
+	 * @return Region|null The Region object or null on failure.
+	 *
+	 * @throws Exception If an exception occurs while retrieving the region.
+	 */
+	function getRegion(
+		string $providerKey,
+		string $regionKey,
+		$input = null,
+		string $context = '',
+		?callable $errorCallback = null
+	): ?Region {
+		try {
+			$registry = new Registry( $input, $context );
+
+			return $registry->getRegion( $providerKey, $regionKey );
+		} catch ( Exception $e ) {
+			if ( is_callable( $errorCallback ) ) {
+				call_user_func( $errorCallback, $e );
+			}
+
+			// Handle the exception or log it if needed
+			return null; // Return null on failure
 		}
 	}
 }
 
 /** Endpoint **************************************************************/
 
-if ( ! function_exists( 'get_endpoint' ) ) {
+if ( ! function_exists( 'getEndpoint' ) ) {
 	/**
 	 * Retrieves the endpoint URL for a given provider and optional region.
 	 *
-	 * @param string            $provider_key    The unique key identifying the provider.
-	 * @param string|null       $region_key      The key of the desired region. If null, the provider's default region is used.
-	 * @param string            $account_id      The account ID which can be replaced in the endpoint URL.
-	 * @param string|null       $custom_endpoint The custom endpoint URL to use (optional).
-	 * @param string|array|null $input           Either a path to the JSON file containing providers or an array of providers data. If null, it will be loaded from the default JSON file.
-	 * @param string            $context         Describes how the region options are being retrieved, useful for filtering by specific plugins that use the library.
-	 * @param callable|null     $error_callback  Callback function for error handling.
+	 * @param string            $providerKey    The unique key identifying the provider.
+	 * @param string|null       $regionKey      The key of the desired region. If null, the provider's default region is used.
+	 * @param string            $accountId      The account ID which can be replaced in the endpoint URL.
+	 * @param string|null       $customEndpoint The custom endpoint URL to use (optional).
+	 * @param string|array|null $input          Either a path to the JSON file containing providers or an array of providers data. If null, it will be loaded from the default JSON file.
+	 * @param string            $context        Describes how the region options are being retrieved, useful for filtering by specific plugins that use the library.
+	 * @param callable|null     $errorCallback  Callback function for error handling.
 	 *
 	 * @return string|false The complete endpoint URL for the given provider and region, or false on failure.
 	 *
 	 * @throws Exception When the specified region does not exist for the given provider.
 	 */
-	function get_endpoint(
-		string $provider_key,
-		string $region_key = '',
-		string $account_id = '',
-		?string $custom_endpoint = null,
+	function getEndpoint(
+		string $providerKey,
+		string $regionKey = '',
+		string $accountId = '',
+		?string $customEndpoint = null,
 		$input = null,
 		string $context = '',
-		?callable $error_callback = null
+		?callable $errorCallback = null
 	) {
 		try {
-			$providers = new Providers( $input, $context );
+			$registry = new Registry( $input, $context );
 
-			return $providers->get_endpoint( $provider_key, $region_key, $account_id, $custom_endpoint );
+			return $registry->getEndpoint( $providerKey, $regionKey, $accountId, $customEndpoint );
 		} catch ( Exception $e ) {
-			if ( is_callable( $error_callback ) ) {
-				call_user_func( $error_callback, $e );
+			if ( is_callable( $errorCallback ) ) {
+				call_user_func( $errorCallback, $e );
 			}
 
 			// Handle the exception here (e.g., log it or return a default value)
@@ -329,28 +329,28 @@ if ( ! function_exists( 'get_endpoint' ) ) {
 
 /** Settings **************************************************************/
 
-if ( ! function_exists( 'has_credentials' ) ) {
+if ( ! function_exists( 'hasCredentials' ) ) {
 	/**
 	 * Checks if valid credentials are available for generating S3 signer arguments.
 	 *
 	 * This function determines whether the provided options contain valid credentials
 	 * necessary for generating arguments required by an S3 signer.
 	 *
-	 * @param string        $options_getter The function used to retrieve option values (defaults to 'get_option').
-	 * @param string|null   $option_prefix  An optional prefix for option keys.
-	 * @param callable|null $error_callback An optional callback for handling errors and exceptions.
+	 * @param string        $optionsGetter The function used to retrieve option values (defaults to 'get_option').
+	 * @param string|null   $optionPrefix  An optional prefix for option keys.
+	 * @param callable|null $errorCallback An optional callback for handling errors and exceptions.
 	 *
 	 * @return bool True if valid credentials are available, false otherwise.
 	 * @throws Exception If an exception occurs during credential validation.
 	 */
-	function has_credentials( string $options_getter = 'get_option', string $option_prefix = null, ?callable $error_callback = null ): bool {
+	function hasCredentials( string $optionsGetter = 'get_option', string $optionPrefix = null, ?callable $errorCallback = null ): bool {
 		try {
-			$settings = new Settings( $options_getter, $option_prefix );
+			$settings = new Settings( $optionsGetter, $optionPrefix );
 
-			return $settings->has_credentials();
+			return $settings->hasCredentials();
 		} catch ( Exception $e ) {
-			if ( is_callable( $error_callback ) ) {
-				call_user_func( $error_callback, $e );
+			if ( is_callable( $errorCallback ) ) {
+				call_user_func( $errorCallback, $e );
 			}
 
 			// Handle the exception or log it if needed
@@ -359,29 +359,48 @@ if ( ! function_exists( 'has_credentials' ) ) {
 	}
 }
 
-if ( ! function_exists( 'get_signer_args' ) ) {
+if ( ! function_exists( 'processPath' ) ) {
 	/**
-	 * Determines if the provided options are valid for generating S3 signer arguments.
+	 * Processes an S3 file path using the Processor class to generate a pre-signed URL or perform other operations.
 	 *
-	 * @param string        $options_getter The getter function to retrieve option values (defaults to 'get_option').
-	 * @param string|null   $option_prefix  An optional prefix for option keys.
-	 * @param array         $args           Additional arguments for generating S3 signer arguments.
-	 * @param callable|null $error_callback Callback function for error handling in case of exceptions.
+	 * This helper function initializes the Processor class with given options and path, then
+	 * attempts to generate a pre-signed URL or perform other path-related operations.
 	 *
-	 * @return array True if the S3 signer arguments can be generated successfully, false otherwise.
-	 * @throws Exception
+	 * @param string        $path                The S3 file name or path to be processed.
+	 * @param string        $optionsGetter       The function name used to retrieve option values (defaults to 'get_option').
+	 * @param string|null   $optionPrefix        An optional prefix for option keys.
+	 * @param callable|null $errorCallback       Callback function for error handling in case of exceptions.
+	 * @param array         $allowedExtensions   List of allowed file extensions for S3 paths.
+	 * @param array         $disallowedProtocols List of disallowed protocols in S3 paths.
+	 *
+	 * @return string|null A pre-signed URL if processing is successful, null otherwise.
+	 * @throws Exception If an error occurs during the processing of the S3 path.
 	 */
-	function get_signer_args( string $options_getter = 'get_option', string $option_prefix = null, array $args = [], ?callable $error_callback = null ): ?array {
+	function processPath(
+		string $path,
+		string $optionsGetter = 'get_option',
+		?string $optionPrefix = null,
+		?callable $errorCallback = null,
+		array $allowedExtensions = [],
+		array $disallowedProtocols = []
+	): ?string {
 		try {
-			$settings = new Settings( $options_getter, $option_prefix );
+			$processor = new Processor(
+				$path,
+				$optionsGetter,
+				$optionPrefix,
+				$errorCallback,
+				$allowedExtensions,
+				$disallowedProtocols
+			);
 
-			return $settings->get_signer_args( $args );
+			return $processor->getSignedURL();
 		} catch ( Exception $e ) {
-			if ( is_callable( $error_callback ) ) {
-				call_user_func( $error_callback, $e );
+			if ( is_callable( $errorCallback ) ) {
+				call_user_func( $errorCallback, $e );
 			}
 
-			// Handle the exception or log it if needed
+			// Optionally log the exception or handle it as needed
 			return null;
 		}
 	}
