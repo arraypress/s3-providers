@@ -1,5 +1,6 @@
 {
   "version": "1.0.0",
+  "lastUpdated": "2024-03-03T12:00:00Z",
   "providers": {
     "linode": {
       "label": "Linode Object Storage",
@@ -465,8 +466,8 @@
           }
         ]
       },
-      "homepage": "https://www.arraypress.com",
-      "dashboard": "https://www.arraypress.com",
+      "homepage": "https://www.example.com",
+      "dashboard": "https://www.example.com",
       "defaultRegion": "custom",
       "usePathStyle": true,
       "endpoint": "example.com"
