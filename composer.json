@@ -1,0 +1,26 @@
+{
+  "name": "arraypress/s3-providers",
+  "description": "A comprehensive library facilitating interactions with various S3-compatible storage providers. Supports popular providers like Cloudflare R2, Linode, Amazon, and others.",
+  "type": "library",
+  "license": "GPL-2.0-or-later",
+  "authors": [
+    {
+      "name": "David Sherlock",
+      "homepage": "https://arraypress.com/"
+    }
+  ],
+  "minimum-stability": "stable",
+  "require": {
+    "php": "^7.4 || ^8.0",
+    "arraypress/s3-utilities": "*",
+    "arraypress/s3-path-resolver": "*",
+    "arraypress/s3-signer": "*",
+    "ext-json": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "ArrayPress\\S3\\Providers\\": "src/"
+    },
+    "files": ["src/Functions.php"]
+  }
+}
