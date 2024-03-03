@@ -48,11 +48,18 @@ if ( ! class_exists( __NAMESPACE__ . '\\Loader' ) ) :
 		private static ?string $cachedChecksum = null;
 
 		/**
-		 * The cached SHA256 checksum of the loaded file.
+		 * The JSON version of the loaded file.
 		 *
 		 * @var string|null
 		 */
 		private static ?string $jsonVersion = null; // To store the version of the loaded JSON file
+
+		/**
+		 * The JSON last updated date of the loaded file.
+		 *
+		 * @var string|null
+		 */
+		private static ?string $lastUpdated = null; // To store the version of the loaded JSON file
 
 		/**
 		 * Load providers and metadata from a JSON file, including version information.
@@ -95,6 +102,9 @@ if ( ! class_exists( __NAMESPACE__ . '\\Loader' ) ) :
 
 			// Store the version for later comparison, if available
 			self::$jsonVersion = $decodedData->version ?? null;
+
+			// Store the version for later comparison, if available
+			self::$lastUpdated = $decodedData->lastUpdated ?? null;
 
 			return $decodedData->providers;
 		}
@@ -155,6 +165,11 @@ if ( ! class_exists( __NAMESPACE__ . '\\Loader' ) ) :
 				throw new Exception( "The JSON data does not contain a 'version' key." );
 			}
 
+			// Check if the 'lastUpdated' key exists
+			if ( empty( $data->lastUpdated ) ) {
+				throw new Exception( "The JSON data does not contain a 'lastUpdated' key." );
+			}
+
 			return $data;
 		}
 
@@ -187,6 +202,30 @@ if ( ! class_exists( __NAMESPACE__ . '\\Loader' ) ) :
 			}
 
 			return version_compare( self::$jsonVersion, $otherVersion, '>' );
+		}
+
+		/**
+		 * Compares the loaded JSON last updated date against a specified date string to determine if the loaded data is newer.
+		 *
+		 * @param string $otherDate The date string to compare against the loaded JSON last updated date.
+		 *
+		 * @return bool Returns true if the loaded JSON last updated date is newer than the specified date string, false otherwise.
+		 * @throws Exception If no JSON last updated date has been loaded before calling this method.
+		 */
+		public static function isDateNewer( string $otherDate ): bool {
+			if ( self::$lastUpdated === null ) {
+				throw new Exception( "No JSON last updated date loaded. Please load a JSON file first." );
+			}
+
+			$loadedDateTimestamp  = strtotime( self::$lastUpdated );
+			$compareDateTimestamp = strtotime( $otherDate );
+
+			// Validate the dates to ensure they're parsed correctly by strtotime
+			if ( $loadedDateTimestamp === false || $compareDateTimestamp === false ) {
+				throw new Exception( "Invalid date format provided or loaded in JSON." );
+			}
+
+			return $loadedDateTimestamp > $compareDateTimestamp;
 		}
 
 		/**
