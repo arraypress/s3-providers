@@ -190,7 +190,7 @@ if ( ! function_exists( 'getProviderRegionOptions' ) ) {
 	 *                                         the returned options.
 	 * @param string            $optionsGetter The function used to retrieve option values (defaults to 'get_option').
 	 * @param string|null       $optionKey     The option key for retrieving the provider (defaults to 's3_provider').
-	 * @param mixed|null        $defaultValue  An optional default value to use if the option is not found.
+	 * @param string|null       $defaultValue  An optional default value to use if the option is not found.
 	 * @param callable|null     $errorCallback An optional callback for handling errors and exceptions.
 	 * @param string|array|null $input         Either a path to the JSON file containing providers or an array of providers
 	 *                                         data. If null, it will be loaded from the default JSON file.
@@ -206,7 +206,7 @@ if ( ! function_exists( 'getProviderRegionOptions' ) ) {
 		string $emptyLabel = '',
 		string $optionsGetter = 'get_option',
 		?string $optionKey = 's3_provider',
-		$defaultValue = null,
+		?string $defaultValue = '',
 		?callable $errorCallback = null,
 		$input = null,
 		string $context = ''
