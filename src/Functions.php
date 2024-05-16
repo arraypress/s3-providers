@@ -16,10 +16,10 @@
  *
  * Note: These functions check for the existence of the Providers class to prevent redefinition.
  *
- * @package     ArrayPress/s3-providers
+ * @since       1.0.0
  * @copyright   Copyright (c) 2024, ArrayPress Limited
  * @license     GPL2+
- * @since       1.0.0
+ * @package     ArrayPress/s3-providers
  * @author      David Sherlock
  */
 
@@ -28,6 +28,9 @@ declare( strict_types=1 );
 namespace ArrayPress\S3\Providers;
 
 use Exception;
+use InvalidArgumentException;
+use function call_user_func;
+use function is_callable;
 
 /** Providers *************************************************************/
 
@@ -166,6 +169,74 @@ if ( ! function_exists( 'getProviderDefaultRegion' ) ) {
 
 			// Handle the exception or log it if needed
 			return null; // Return null on failure
+		}
+	}
+}
+
+if ( ! function_exists( 'getProviderRegionOptions' ) ) {
+	/**
+	 * Retrieve region options for a specified provider.
+	 *
+	 * This function fetches available region options for a given storage provider, such as AWS, DigitalOcean, etc.
+	 * It provides a mechanism to fetch these regions by interfacing with the `getRegionOptions` function.
+	 * If no provider key is provided, it defaults to the provider specified in the options retrieved by the
+	 * `optionsGetter` callback.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string            $providerKey   The key or identifier for the storage provider. If empty, defaults to the
+	 *                                         value from the options.
+	 * @param string            $emptyLabel    An optional label to be used for representing an empty or default choice in
+	 *                                         the returned options.
+	 * @param string            $optionsGetter The function used to retrieve option values (defaults to 'get_option').
+	 * @param string|null       $optionKey     The option key for retrieving the provider (defaults to 's3_provider').
+	 * @param mixed|null        $defaultValue  An optional default value to use if the option is not found.
+	 * @param callable|null     $errorCallback An optional callback for handling errors and exceptions.
+	 * @param string|array|null $input         Either a path to the JSON file containing providers or an array of providers
+	 *                                         data. If null, it will be loaded from the default JSON file.
+	 * @param string            $context       Describes how the region options are being retrieved, useful for filtering
+	 *                                         by specific plugins that use the library.
+	 *
+	 * @return array An associative array of region identifiers and their human-readable labels.
+	 *
+	 * @throws Exception
+	 */
+	function getProviderRegionOptions(
+		string $providerKey = '',
+		string $emptyLabel = '',
+		string $optionsGetter = 'get_option',
+		?string $optionKey = 's3_provider',
+		$defaultValue = null,
+		?callable $errorCallback = null,
+		$input = null,
+		string $context = ''
+	): array {
+		try {
+			if ( is_callable( $optionsGetter ) ) {
+				if ( empty( $providerKey ) ) {
+					$providerKey = is_null( $defaultValue ) ?
+						call_user_func( $optionsGetter, $optionKey ) :
+						call_user_func( $optionsGetter, $optionKey, $defaultValue );
+				}
+			} else {
+				throw new InvalidArgumentException( "The provided optionsGetter is not callable." );
+			}
+
+			// Fetch region options using the helper function
+			return getRegionOptions(
+				$providerKey,
+				$emptyLabel,
+				$input,
+				$context,
+				$errorCallback
+			);
+		} catch ( Exception $e ) {
+			if ( is_callable( $errorCallback ) ) {
+				call_user_func( $errorCallback, $e );
+			}
+
+			// Handle the exception or log it if needed
+			return []; // Return an empty array as a fallback
 		}
 	}
 }

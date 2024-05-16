@@ -1,6 +1,6 @@
 {
-  "version": "1.0.0",
-  "lastUpdated": "2024-03-03T12:00:00Z",
+  "version": "1.0.1",
+  "lastUpdated": "2024-05-16T12:00:00Z",
   "providers": {
     "linode": {
       "label": "Linode Object Storage",
@@ -447,13 +447,19 @@
             "label": "Automatic",
             "region": "auto"
           }
+        ],
+        "EU": [
+          {
+            "label": "European Union",
+            "region": "eu"
+          }
         ]
       },
       "homepage": "https://www.cloudflare.com/products/r2/",
       "dashboard": "https://dash.cloudflare.com/",
       "defaultRegion": "auto",
       "usePathStyle": true,
-      "endpoint": "{account_id}.r2.cloudflarestorage.com"
+      "endpoint": "{account_id}.{region}.r2.cloudflarestorage.com"
     },
     "custom": {
       "label": "Custom Provider",

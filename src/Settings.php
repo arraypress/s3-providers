@@ -274,7 +274,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\Settings' ) ) :
 			return (object) [
 				'accessKey'        => $this->access_key,
 				'secretKey'        => $this->secret_key,
-				'endpoint'         => $this->getEndpoint(), // Assuming getEndpoint() is a method.
+				'endpoint'         => $this->getEndpoint(),
 				'region'           => $this->region,
 				'usePathStyle'     => $this->use_path_style,
 				'extraQueryString' => $this->extra_query_string,

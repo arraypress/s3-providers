@@ -6,10 +6,10 @@
  * homepage, endpoint structures, and other relevant details. It offers utilities to fetch and interpret
  * these details in a structured manner.
  *
- * @package     ArrayPress/s3-providers
+ * @since       1.0.0
  * @copyright   Copyright (c) 2024, ArrayPress Limited
  * @license     GPL2+
- * @since       1.0.0
+ * @package     ArrayPress/s3-providers
  * @author      David Sherlock
  * @description Provides methods for fetching, interpreting, and managing information related to storage providers.
  */
@@ -18,6 +18,14 @@ namespace ArrayPress\S3\Providers;
 
 use ArrayPress\S3\Sanitize;
 use Exception;
+
+use function trim;
+use function str_replace;
+use function preg_replace;
+use function strpos;
+use function strtolower;
+use function in_array;
+use function sprintf;
 
 /**
  * Represents an S3 provider and provides related utilities.
@@ -250,8 +258,18 @@ if ( ! class_exists( __NAMESPACE__ . '\\Provider' ) ) :
 				? trim( $customEndpoint )
 				: $this->endpoint;
 
+			// Handle the case where the region is 'auto'
+			if ( $regionKey === 'auto' ) {
+				$regionKey = '';
+			}
+
 			// Replace placeholders in the endpoint URL with actual values
-			return str_replace( [ '{region}', '{account_id}' ], [ $regionKey, $accountId ], $endpoint );
+			$endpoint = str_replace( [ '{region}', '{account_id}' ], [ $regionKey, $accountId ], $endpoint );
+
+			// Remove any trailing dots caused by empty placeholders
+			$endpoint = preg_replace( '/\.+/', '.', $endpoint );
+
+			return trim( $endpoint, '.' );
 		}
 
 		/**

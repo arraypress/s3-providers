@@ -1,6 +1,7 @@
 {
   "name": "arraypress/s3-providers",
   "description": "A comprehensive library facilitating interactions with various S3-compatible storage providers. Supports popular providers like Cloudflare R2, Linode, Amazon, and others.",
+  "homepage": "https://github.com/arraypress/s3-path-resolver/",
   "type": "library",
   "license": "GPL-2.0-or-later",
   "authors": [
@@ -9,7 +10,10 @@
       "homepage": "https://arraypress.com/"
     }
   ],
-  "minimum-stability": "stable",
+  "config": {
+    "optimize-autoloader": true,
+    "sort-packages": true
+  },
   "require": {
     "php": "^7.4 || ^8.0",
     "arraypress/s3-utilities": "*",
@@ -22,5 +26,7 @@
       "ArrayPress\\S3\\Providers\\": "src/"
     },
     "files": ["src/Functions.php"]
-  }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
 }

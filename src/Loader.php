@@ -30,6 +30,13 @@
 namespace ArrayPress\S3\Providers;
 
 use Exception;
+use function file_get_contents;
+use function file_exists;
+use function json_decode;
+use function json_last_error;
+use function version_compare;
+use function strtotime;
+use function hash_file;
 
 /**
  * Handles the loading and validation of S3 region data from JSON sources.
