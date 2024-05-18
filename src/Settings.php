@@ -9,10 +9,10 @@
  * providers, regions, custom endpoints, and more. It also provides a convenient way to retrieve arguments for signing
  * classes used in S3 pre-signing operations.
  *
- * @package     ArrayPress/s3-providers
+ * @since       0.1.0
  * @copyright   Copyright (c) 2024, ArrayPress Limited
  * @license     GPL2+
- * @since       1.0.0
+ * @package     ArrayPress/s3-providers
  * @author      David Sherlock
  */
 
@@ -20,7 +20,13 @@ namespace ArrayPress\S3\Providers;
 
 use Exception;
 use InvalidArgumentException;
-use function ArrayPress\S3\validate;
+use function ArrayPress\S3\Utils\validate;
+use function call_user_func;
+use function constant;
+use function defined;
+use function is_string;
+use function strtolower;
+use function trim;
 
 /**
  * S3 Settings Validator Class

@@ -16,7 +16,7 @@
  *
  * Note: These functions check for the existence of the Providers class to prevent redefinition.
  *
- * @since       1.0.0
+ * @since       0.1.0
  * @copyright   Copyright (c) 2024, ArrayPress Limited
  * @license     GPL2+
  * @package     ArrayPress/s3-providers

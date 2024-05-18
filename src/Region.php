@@ -5,14 +5,15 @@
  * @package     ArrayPress/s3-providers
  * @copyright   Copyright (c) 2024, ArrayPress Limited
  * @license     GPL2+
- * @since       1.0.0
+ * @since       0.1.0
  * @author      David Sherlock
  * @description Provides methods for fetching and interpreting information related to S3 regions.
  */
 
 namespace ArrayPress\S3\Providers;
 
-use ArrayPress\S3\Sanitize;
+use ArrayPress\S3\Utils\Sanitize;
+use function strtolower;
 
 /**
  * Represents an S3 region and provides related utilities.

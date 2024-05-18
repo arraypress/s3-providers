@@ -17,13 +17,20 @@
  * @package     ArrayPress/s3-providers
  * @copyright   Copyright (c) 2024, ArrayPress Limited
  * @license     GPL2+
- * @since       1.0.0
+ * @since       0.1.0
  * @author      David Sherlock
  */
 
 namespace ArrayPress\S3\Providers;
 
 use Exception;
+use function is_null;
+use function is_string;
+use function is_array;
+use function ksort;
+use function reset;
+use function key;
+use function array_key_exists;
 
 /**
  * Manages S3 providers and offers utilities for interacting with them and their regions.
@@ -39,7 +46,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\Registry' ) ) :
 		 *
 		 * @var Provider[]
 		 */
-		private array $providers = array(); // Store initialized providers
+		private array $providers = []; // Store initialized providers
 
 		/**
 		 * Constructs the Providers class.
@@ -146,7 +153,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\Registry' ) ) :
 		 * @return array Associative array of providers.
 		 */
 		public function getProviderOptions( string $emptyLabel = '' ): array {
-			$options = array();
+			$options = [];
 
 			if ( ! empty( $emptyLabel ) ) {
 				$options[''] = $emptyLabel;

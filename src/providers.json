@@ -447,11 +447,22 @@
             "label": "Automatic",
             "region": "auto"
           }
-        ],
-        "EU": [
+        ]
+      },
+      "homepage": "https://www.cloudflare.com/products/r2/",
+      "dashboard": "https://dash.cloudflare.com/",
+      "defaultRegion": "auto",
+      "usePathStyle": true,
+      "endpoint": "{account_id}.r2.cloudflarestorage.com"
+    },
+    "cloudflare_eu": {
+      "label": "CloudFlare R2 (EU)",
+      "supplier": "CloudFlare",
+      "regions": {
+        "Global": [
           {
-            "label": "European Union",
-            "region": "eu"
+            "label": "Automatic",
+            "region": "auto"
           }
         ]
       },
@@ -459,7 +470,7 @@
       "dashboard": "https://dash.cloudflare.com/",
       "defaultRegion": "auto",
       "usePathStyle": true,
-      "endpoint": "{account_id}.{region}.r2.cloudflarestorage.com"
+      "endpoint": "{account_id}.eu.r2.cloudflarestorage.com"
     },
     "custom": {
       "label": "Custom Provider",

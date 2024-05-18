@@ -21,7 +21,7 @@
  * @package     ArrayPress/s3-providers
  * @copyright   Copyright (c) 2024, ArrayPress Limited
  * @license     GPL2+
- * @since       1.0.0
+ * @since       0.1.0
  * @author      David Sherlock
  * @description Manages and streamlines the process of retrieving, validating, and verifying storage provider data from
  *              JSON sources.

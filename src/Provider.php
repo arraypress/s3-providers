@@ -6,7 +6,7 @@
  * homepage, endpoint structures, and other relevant details. It offers utilities to fetch and interpret
  * these details in a structured manner.
  *
- * @since       1.0.0
+ * @since       0.1.0
  * @copyright   Copyright (c) 2024, ArrayPress Limited
  * @license     GPL2+
  * @package     ArrayPress/s3-providers
@@ -16,7 +16,7 @@
 
 namespace ArrayPress\S3\Providers;
 
-use ArrayPress\S3\Sanitize;
+use ArrayPress\S3\Utils\Sanitize;
 use Exception;
 
 use function trim;
@@ -62,7 +62,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\Provider' ) ) :
 		 *
 		 * @var Region[]
 		 */
-		private array $regions = array();
+		private array $regions = [];
 
 		/**
 		 * Homepage URL of the provider.

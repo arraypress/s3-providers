@@ -13,7 +13,7 @@
  * - Parsing S3 paths to extract bucket and object details.
  * - Generating pre-signed URLs for secure, temporary access to S3 objects.
  *
- * @since       1.0.0
+ * @since       0.1.0
  * @copyright   Copyright (c) 2024, ArrayPress Limited
  * @license     GPL2+
  * @package     ArrayPress/s3-providers
@@ -23,12 +23,13 @@
 namespace ArrayPress\S3\Providers;
 
 use Exception;
-use function ArrayPress\S3\getObjectUrl;
-use function ArrayPress\S3\parsePath;
+use function ArrayPress\S3\Signer\getObjectUrl;
+use function ArrayPress\S3\PathResolver\parsePath;
 use function call_user_func;
 use function in_array;
 use function is_callable;
 use function trim;
+use function array_unique;
 
 /**
  * S3 Utility Class (Processor)
